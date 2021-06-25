@@ -1,0 +1,99 @@
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: rgb(209, 125, 7);
+    background: linear-gradient(180deg, rgba(209, 125, 7, 1) 0%, rgba(255, 200, 0, 1) 100%);
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/*** BARRA SUPERIOR ***/
+
+.navbar {
+    background-color: #ffdba4;
+}
+
+.navbar-brand>img {
+    width: 50px;
+    height: 50px;
+    float: left;
+    margin-right: 10px;
+}
+
+.navbar-brand>h1 {
+    font-variant: small-caps;
+}
+
+.no-loggin-warning {
+    background-color: #ffdba4;
+    padding: 0px 10px 10px 10px;
+    text-align: center;
+}
+
+
+/*** FORMULARIO AÑADIR SERIES ***/
+
+
+/*** LISTA SERIES ***/
+
+#lista-series {
+    padding-left: 0;
+}
+
+hr {
+    width: 100%;
+    background-color: #856404;
+    height: 1px;
+}
+
+.serie-platform {
+    margin-right: 20px;
+}
+
+.serie-available-chapter-input,
+.serie-last-chapter-input {
+    font-size: 2rem;
+    background-color: #de910566;
+    width: 4rem;
+    padding: 5px;
+    text-align: center;
+    border-radius: 5px;
+    margin-right: 20px;
+}
+
+.plus-chapter {
+    margin-right: 20px;
+}
+
+
+/*** LOADER ***/
+
+#loader {
+    border: 12px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 12px solid #d27e07;
+    width: 70px;
+    height: 70px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.center {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}

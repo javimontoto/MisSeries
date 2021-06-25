@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" type="image/png" href="/assets/icons/favicon.png" />
+
+    <title>Mis SERIES</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body>
+    <!-- MODALs -->
+
+    <!-- Login -->
+    <div class="modal" id="login-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Entrar en Mis SERIES</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="email-login" class="col-form-label">Email:</label>
+                            <input type="text" class="form-control" id="email-login">
+                            <div class="invalid-feedback hidden">Introduzca una dirección de email válida</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pass-login" class="col-form-label">Contraseña:</label>
+                            <input type="password" class="form-control" id="pass-login">
+                            <div class="invalid-feedback hidden">La contraseña debe tener al menos 6 caracteres</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="login-button" class="btn btn-primary">Entrar</button>
+                    <button type="button" id="reset-pass-button" class="btn btn-primary">Recuperar contraseña</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registro -->
+    <div class="modal" id="register-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrarse en Mis SERIES</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="email-register" class="col-form-label">Email:</label>
+                            <input type="text" class="form-control" id="email-register">
+                            <div class="invalid-feedback hidden">La dirección de email no es válida</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pass-register" class="col-form-label">Contraseña:</label>
+                            <input type="password" class="form-control" id="pass-register">
+                            <div class="invalid-feedback hidden">La contraseña debe tener al menos 6 caracteres</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="register-button" class="btn btn-primary">Registrarse</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nueva serie -->
+    <div class="modal" id="add-serie-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Serie</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-serie-form">
+                        <div class="form-group">
+                            <label for="serie-title" class="col-form-label">Título:</label>
+                            <input type="text" class="form-control" id="serie-title">
+                            <div class="invalid-feedback hidden">Título no válido</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="serie-available-chapter" class="col-form-label">Capítulos disponibles:</label>
+                            <input type="number" min="1" step="1" class="form-control" id="serie-available-chapter">
+                            <div class="invalid-feedback hidden"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="serie-last-chapter" class="col-form-label">Último capítulo visto:</label>
+                            <input type="number" min="0" step="1" class="form-control" id="serie-last-chapter">
+                            <div class="invalid-feedback hidden"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="serie-platform" class="col-form-label">Plataforma:</label>
+                            <input type="text" class="form-control" id="serie-platform">
+                            <div class="invalid-feedback hidden">Plataforma no válida</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="add-serie-button" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- fin MODALs -->
+
+    <div class="container">
+        <nav class="navbar navbar-expand-sm navbar-light">
+            <span class="navbar-brand">
+                <img src="/assets/icons/favicon.png" alt="logo">
+                <h1>Mis SERIES</h1>
+            </span>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#log-buttons" aria-controls="log-buttons" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="log-buttons">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <button id="login-modal-button" class="btn btn-outline-primary mr-1 mb-1 active" data-toggle="modal" data-target="#login-modal">Iniciar sesión</button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="register-modal-button" class="btn btn-primary active" data-toggle="modal" data-target="#register-modal">Registrarse</button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="verification-button" class="btn btn-danger mr-1 mb-1 hidden">Reenviar email de
+                            verificación</button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="add-serie-modal-button" class="btn btn-primary mr-1 mb-1 hidden" data-toggle="modal" data-target="#add-serie-modal">Añadir serie</button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="logout-button" class="btn btn-primary hidden">Cerrar sesión</button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <ul id="lista-series" class="mt-3"></ul>
+    </div>
+
+    <template id="template">
+        <li class="alert alert-warning d-flex flex-column">
+            <div class="d-flex justify-content-between">
+                <h2 class="serie-title m-0">Título serie 1</h2>
+                <div class="d-flex align-items-center">
+                    <h4 class="serie-platform">Plataforma</h4>
+                    <h3><i class="fas fa-cog edit-serie"></i></h3>
+                </div>
+            </div>
+            <hr>
+            <div class="d-flex flex-column">
+                <h3 class="serie-available-chapter d-flex justify-content-between">
+                    <span class="">Capítulos disponibles:</span>
+                    <div class="buttons-chapter d-flex align-items-center">
+                        <div class="serie-available-chapter-input"></div>
+                        <i class="fas fa-plus plus-chapter"></i>
+                        <i class="fas fa-minus minus-chapter"></i>
+                    </div>
+                </h3>
+                <h3 class="serie-last-chapter d-flex justify-content-between">
+                    <span>Último capítulo visto:</span>
+                    <div class="buttons-chapter d-flex align-items-center">
+                        <div class="serie-last-chapter-input"></div>
+                        <i class="fas fa-plus plus-chapter"></i>
+                        <i class="fas fa-minus minus-chapter"></i>
+                    </div>
+                </h3>
+            </div>
+        </li>
+    </template>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-database.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <!-- Bootbox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js" integrity="sha512-RdSPYh1WA6BF0RhpisYJVYkOyTzK4HwofJ3Q7ivt/jkpW6Vc8AurL1R+4AUcvn9IwEKAPm/fk7qFZW3OuiUDeg==" crossorigin="anonymous"></script>
+
+    <!-- SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <!-- JS -->
+    <script src="assets/js/fb.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/myBootbox.js"></script>
+
+</body>
+
+</html>
