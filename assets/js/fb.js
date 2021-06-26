@@ -32,7 +32,7 @@ function singInFB() {
         // Sign in with email and pass.
         firebase.auth().signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
-                closeModal('login-modal');
+                $('#login-modal').modal('hide');
                 user = firebase.auth().currentUser;
                 localStorage.setItem('user', JSON.stringify(user));
                 showCloseButton(true);
@@ -40,7 +40,7 @@ function singInFB() {
             })
             .catch((error) => {
                 // Handle Errors here.
-                closeModal('login-modal');
+                $('#login-modal').modal('hide');
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 switch (errorCode) {
@@ -58,8 +58,7 @@ function singInFB() {
                 showCloseButton(false);
             });
     } else {
-        console.log('Había usuario');
-        closeModal('login-modal');
+        $('#login-modal').modal('hide');
     }
 }
 
@@ -77,7 +76,7 @@ function signUpFB() {
     // Create user with email and pass.
     firebase.auth().createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
-            closeModal('register-modal');
+            $('#register-modal').modal('hide');
             showCloseButton(true);
 
             // Enviamos correo de verificación
@@ -86,7 +85,7 @@ function signUpFB() {
         })
         .catch((error) => {
             // Handle Errors here.
-            closeModal('register-modal');
+            $('#register-modal').modal('hide');
 
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -170,6 +169,7 @@ function saveSerie(serie) {
             title: serie.title,
             lastChapter: serie.lastChapter,
             availableChapter: serie.availableChapter,
+            season: serie.season,
             platform: serie.platform,
             position: serie.position,
             modified: Date.now()
@@ -215,6 +215,7 @@ function updateSerie(serie) {
             lastChapter: serie.lastChapter,
             availableChapter: serie.availableChapter,
             position: serie.position,
+            season: serie.season,
             platform: serie.platform,
             modified: Date.now()
         })
@@ -222,6 +223,8 @@ function updateSerie(serie) {
             myAlert('Atención', error.message);
             return false;
         });
+
+    return true;
 }
 
 /**
@@ -229,9 +232,11 @@ function updateSerie(serie) {
  * @param {Object} serie Objeto de tipo serie
  */
 function removeSerie(serie) {
-    firebase.database().ref('series/' + user.uid + '/' + task.id).remove()
+    firebase.database().ref('series/' + user.uid + '/' + serie.id).remove()
         .catch((error) => {
             myAlert('Atención', error.message);
             return false;
         });
+
+    return true;
 }

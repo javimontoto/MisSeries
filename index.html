@@ -82,12 +82,12 @@
         </div>
     </div>
 
-    <!-- Nueva serie -->
+    <!-- Nueva serie o Editar serie -->
     <div class="modal" id="add-serie-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Nueva Serie</h5>
+                    <h5 class="modal-title">Nueva serie</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -101,12 +101,17 @@
                         </div>
                         <div class="form-group">
                             <label for="serie-available-chapter" class="col-form-label">Capítulos disponibles:</label>
-                            <input type="number" min="1" step="1" class="form-control" id="serie-available-chapter">
+                            <input type="number" min="0" step="1" class="form-control" id="serie-available-chapter">
                             <div class="invalid-feedback hidden"></div>
                         </div>
                         <div class="form-group">
                             <label for="serie-last-chapter" class="col-form-label">Último capítulo visto:</label>
                             <input type="number" min="0" step="1" class="form-control" id="serie-last-chapter">
+                            <div class="invalid-feedback hidden"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="serie-season" class="col-form-label">Temporada:</label>
+                            <input type="number" min="1" step="1" class="form-control" id="serie-season">
                             <div class="invalid-feedback hidden"></div>
                         </div>
                         <div class="form-group">
@@ -123,7 +128,6 @@
             </div>
         </div>
     </div>
-
     <!-- fin MODALs -->
 
     <div class="container">
@@ -149,7 +153,7 @@
                             verificación</button>
                     </li>
                     <li class="nav-item">
-                        <button id="add-serie-modal-button" class="btn btn-primary mr-1 mb-1 hidden" data-toggle="modal" data-target="#add-serie-modal">Añadir serie</button>
+                        <button id="add-serie-modal-button" class="btn btn-primary mr-1 mb-1 hidden">Añadir serie</button>
                     </li>
                     <li class="nav-item">
                         <button id="logout-button" class="btn btn-primary hidden">Cerrar sesión</button>
@@ -164,16 +168,16 @@
     <template id="template">
         <li class="alert alert-warning d-flex flex-column">
             <div class="d-flex justify-content-between">
-                <h2 class="serie-title m-0">Título serie 1</h2>
-                <div class="d-flex align-items-center">
+                <div class="">
+                    <h2 class="serie-title m-0 font-weight-bold">Título serie 1</h2>
                     <h4 class="serie-platform">Plataforma</h4>
-                    <h3><i class="fas fa-cog edit-serie"></i></h3>
                 </div>
+                <h1><i class="fas fa-cog edit-serie"></i></h1>
             </div>
             <hr>
             <div class="d-flex flex-column">
                 <h3 class="serie-available-chapter d-flex justify-content-between">
-                    <span class="">Capítulos disponibles:</span>
+                    <span class="">Último capítulo disponible:</span>
                     <div class="buttons-chapter d-flex align-items-center">
                         <div class="serie-available-chapter-input"></div>
                         <i class="fas fa-plus plus-chapter"></i>

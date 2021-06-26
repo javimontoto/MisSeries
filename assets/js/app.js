@@ -23,6 +23,7 @@ const listaSeries = document.getElementById('lista-series'),
     serieTitle = document.getElementById('serie-title'),
     serieAvailableChapter = document.getElementById('serie-available-chapter'),
     serieLastChapter = document.getElementById('serie-last-chapter'),
+    serieSeason = document.getElementById('serie-season'),
     seriePlatform = document.getElementById('serie-platform'),
     addSerieButton = document.getElementById('add-serie-button');
 
@@ -41,7 +42,8 @@ registerButton.addEventListener('click', signUpFB, false);
 verificationButton.addEventListener('click', sendEmailVerification, false);
 logoutButton.addEventListener('click', signOutFB, false);
 resetPassButton.addEventListener('click', sendPasswordReset, false);
-addSerieButton.addEventListener('click', e => { addSerie(e); });
+addSerieModalButton.addEventListener('click', showModalSerie, false);
+addSerieButton.addEventListener('click', addSerie, false);
 
 
 /*** FUNCIONES PRINCIPALES ***/
@@ -63,41 +65,121 @@ function getAllSeries() {
 }
 
 /**
+ * Muestra modal para crear o actualizar serie
+ * @param {Event} e 
+ */
+function showModalSerie(e) {
+    e.preventDefault;
+
+    const edit = !(e.target.id === 'add-serie-modal-button'),
+        modal = document.getElementById('add-serie-modal');
+
+    if (edit) {
+        // Editando serie
+        modal.querySelector('.modal-title').textContent = 'Editar serie';
+        const serie = misSeries[e.target.dataset.id];
+        serieTitle.value = serie.title;
+        serieLastChapter.value = serie.lastChapter;
+        serieAvailableChapter.value = serie.availableChapter;
+        serieSeason.value = serie.season;
+        seriePlatform.value = serie.platform;
+        addSerieButton.dataset.id = serie.id;
+
+        // Añadimos botón para borrar la serie si no existe
+        let removeSerieButton = document.getElementById('remove-serie-button');
+        if (typeof(removeSerieButton) === 'undefined' || removeSerieButton === null) {
+            // Lo creamos
+            removeSerieButton = document.createElement('button');
+            removeSerieButton.id = 'remove-serie-button';
+            removeSerieButton.classList.add('btn', 'btn-danger');
+            removeSerieButton.textContent = 'Eliminar serie';
+            removeSerieButton.dataset.id = serie.id;
+            const modalFooter = modal.querySelector('.modal-footer');
+            modalFooter.insertBefore(removeSerieButton, modalFooter.lastElementChild);
+        }
+        removeSerieButton.addEventListener('click', deleteSerie, false);
+
+    } else {
+        // Creando nueva serie
+        modal.querySelector('.modal-title').textContent = 'Nueva serie';
+        addSerieForm.reset();
+        delete addSerieButton.dataset.id;
+
+        // Si está presente el botón borrar serie lo quitamos
+        const removeSerieButton = document.getElementById('remove-serie-button');
+        if (typeof(removeSerieButton) != 'undefined' && removeSerieButton != null)
+            removeSerieButton.remove();
+    }
+
+    // Mostramos las modal con jQuery
+    $('#add-serie-modal').modal('show');
+
+}
+
+/**
  * Guardar la serie
  * @param {Event} e 
  */
 function addSerie(e) {
     e.preventDefault();
+    let serie = {};
 
-    // Creamos la tarea
-    const serie = {};
-    serie.id = Date.now();
-    serie.title = serieTitle.value;
-    serie.lastChapter = serieLastChapter.value;
-    serie.availableChapter = serieAvailableChapter.value;
-    serie.platform = seriePlatform.value;
-    serie.position = lastPosition + 1;
+    console.log('event.target: ', e.target);
 
     // Comprobamos si estamos logueados
-    if (localStorage.getItem('user')) {
-        // Añadimos la serie a FB
-        if (!saveSerie(serie))
-            return;
+    if (!localStorage.getItem('user')) {
+        showCloseButton(false);
+        return;
     }
 
-    // Añadimos a la colección
-    misSeries[serie.id] = serie;
+    if (e.target.dataset.id === undefined || e.target.dataset.id === 0) {
+        // Creamos nueva serie
+        serie.id = Date.now();
+        serie.title = serieTitle.value;
+        serie.lastChapter = serieLastChapter.value;
+        serie.availableChapter = serieAvailableChapter.value;
+        serie.season = serieSeason.value;
+        serie.platform = seriePlatform.value;
+        serie.position = lastPosition + 1;
+
+        // Añadimos la serie a FB
+        if (saveSerie(serie)) {
+            // Añadimos a la colección
+            misSeries[serie.id] = serie;
+        }
+
+    } else {
+        // Actualizamos serie
+        serie = misSeries[e.target.dataset.id];
+        serie.title = serieTitle.value;
+        serie.lastChapter = serieLastChapter.value;
+        serie.availableChapter = serieAvailableChapter.value;
+        serie.season = serieSeason.value;
+        serie.platform = seriePlatform.value;
+
+        updateSerie(serie);
+    }
 
     // Cerramos la modal y la limpiamos
-    closeModal('add-serie-modal');
     addSerieForm.reset();
+    $('#add-serie-modal').modal('hide');
 
     showSeries();
 }
 
-function editSerie(e) {
+/**
+ * Elimina una serie
+ * @param {Event} e 
+ */
+function deleteSerie(e) {
     const serie = misSeries[e.target.dataset.id];
-
+    if (removeSerie(serie)) {
+        // Cerramos la modal y la limpiamos
+        addSerieForm.reset();
+        $('#add-serie-modal').modal('hide');
+        delete misSeries[e.target.dataset.id];
+        showSeries();
+    }
 }
 
 /**
@@ -122,23 +204,32 @@ function showSeries() {
 
     Object.values(misSeries).forEach(serie => {
         const clone = template.cloneNode(true);
-        clone.querySelector('li').dataset.id = serie.id;
+
+        // Si el capítulo disponible es igual al visto marcamos la serie como vista
+        if (serie.availableChapter === serie.lastChapter)
+            clone.querySelector('li').classList.add('serie-viewed');
+
+        // Recuperamos los valores
         clone.querySelector('.serie-title').textContent = serie.title;
-        const editSerieButton = clone.querySelector('.edit-serie');
-        editSerieButton.addEventListener("click", e => editSerie(e));
-        editSerieButton.dataset.id = serie.id;
-        clone.querySelector('.serie-platform').textContent = serie.platform;
+        clone.querySelector('.serie-platform').innerHTML = `Temporada ${serie.season} en <b>${serie.platform}`;
         clone.querySelector('.serie-available-chapter-input').textContent = serie.availableChapter;
         clone.querySelector('.serie-last-chapter-input').textContent = serie.lastChapter;
+
+        // Actualizamos el botón de editar la serie
+        const editSerieButton = clone.querySelector('.edit-serie');
+        editSerieButton.dataset.id = serie.id;
+        editSerieButton.addEventListener("click", showModalSerie, false);
+
+        // Preparamos los botones de añadir/quitar capítulos
         const buttonsPlus = clone.querySelectorAll('.plus-chapter');
         buttonsPlus.forEach(b => {
             b.dataset.id = serie.id;
-            b.addEventListener("click", e => updateChapter(e, true));
+            b.addEventListener("click", event => { updateChapter(event, true); }, false);
         });
         const buttonsMinus = clone.querySelectorAll('.minus-chapter');
         buttonsMinus.forEach(b => {
             b.dataset.id = serie.id;
-            b.addEventListener("click", e => updateChapter(e, false));
+            b.addEventListener("click", event => { updateChapter(event, false); }, false);
         })
 
         fragment.appendChild(clone);
@@ -170,28 +261,48 @@ function showSeries() {
 function updateChapter(e, add) {
     let actualiza = false;
     const idSerie = e.target.dataset.id;
-    const serie = misSeries[idSerie];
-    const lastChapter = e.target.parentElement.parentElement.classList.contains('serie-last-chapter');
+    const serie = cloneSerie(misSeries[idSerie]);
+    let lastChapter = parseInt(serie.lastChapter);
+    let availableChapter = parseInt(serie.availableChapter);
+    let newValue = -1;
+    const changeLastChapter = e.target.parentElement.parentElement.classList.contains('serie-last-chapter');
 
-    if (lastChapter) {
+    if (changeLastChapter) {
         // Último cap visto
-        if ((add && parseInt(serie.lastChapter) < parseInt(serie.availableChapter)) || (!add && parseInt(serie.lastChapter) > 0)) {
-            serie.lastChapter = (add ? parseInt(serie.lastChapter) + 1 : parseInt(serie.lastChapter) - 1).toString();
-            e.target.parentElement.firstElementChild.textContent = serie.lastChapter;
+        if ((add && lastChapter < availableChapter) || (!add && lastChapter > 0)) {
+            serie.lastChapter = (add ? lastChapter + 1 : lastChapter - 1).toString();
             actualiza = true;
         }
 
     } else {
         // Último cap disponible
-        if (add || parseInt(serie.availableChapter) > 0) {
-            serie.availableChapter = (add ? parseInt(serie.availableChapter) + 1 : parseInt(serie.availableChapter) - 1).toString();
-            e.target.parentElement.firstElementChild.textContent = serie.availableChapter;
+        if ((!add && lastChapter < availableChapter) || (add && availableChapter > 0)) {
+            serie.availableChapter = (add ? availableChapter + 1 : availableChapter - 1).toString();
             actualiza = true;
         }
     }
 
-    if (actualiza)
-        updateSerie(serie);
+    if (actualiza) {
+        if (updateSerie(serie)) {
+            // Actualización correcta => refrescamos valores
+            misSeries[serie.id] = serie;
+            if (changeLastChapter) {
+                e.target.parentElement.firstElementChild.textContent = serie.lastChapter;
+            } else {
+                e.target.parentElement.firstElementChild.textContent = serie.availableChapter;
+            }
+
+            // Comprobamos si la serie ya está vista
+            const serieBox = e.target.parentElement.parentElement.parentElement.parentElement;
+            if (serie.availableChapter === serie.lastChapter) {
+                serieBox.classList.add('serie-viewed');
+            } else {
+                if (serieBox.classList.contains('serie-viewed'))
+                    serieBox.classList.remove('serie-viewed');
+            }
+        }
+
+    }
 }
 
 
@@ -216,7 +327,7 @@ function showCloseButton(show) {
     } else {
         // Ocultamos el botón de salir y mostramos los de entrar y registrarse
         // y limpiamos la lista
-
+        misSeries = {};
         logoutButton.classList.replace('active', 'hidden');
         addSerieModalButton.classList.replace('active', 'hidden');
         verificationButton.classList.replace('active', 'hidden');
@@ -225,25 +336,6 @@ function showCloseButton(show) {
         loginModalButton.classList.replace('hidden', 'active');
         registerModalButton.classList.replace('hidden', 'active');
 
-    }
-}
-
-/**
- * Cierra la modal con el id proporcionado
- * @param {string} modalId Id de la modal: login-modal, register-modal
- */
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    modal.setAttribute('style', 'display: none');
-
-    // get modal backdrops
-    const modalsBackdrops = document.getElementsByClassName('modal-backdrop');
-
-    // remove every modal backdrop
-    for (let i = 0; i < modalsBackdrops.length; i++) {
-        document.body.removeChild(modalsBackdrops[i]);
     }
 }
 
@@ -323,4 +415,18 @@ function sortSeries() {
     } else
         lastPosition = 1;
 
+}
+
+function cloneSerie(serie) {
+    const newSerie = {};
+    newSerie.id = serie.id;
+    newSerie.title = serie.title;
+    newSerie.lastChapter = serie.lastChapter;
+    newSerie.availableChapter = serie.availableChapter;
+    newSerie.platform = serie.platform;
+    newSerie.season = serie.season;
+    newSerie.position = serie.position;
+    newSerie.modified = serie.modified;
+
+    return newSerie;
 }
