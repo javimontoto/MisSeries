@@ -1,11 +1,19 @@
 html,
 body {
     height: 100%;
+    min-width: 400px;
 }
 
 body {
     background: rgb(209, 125, 7);
-    background: linear-gradient(180deg, rgba(209, 125, 7, 1) 0%, rgba(255, 200, 0, 1) 100%);
+}
+
+.text-responsive {
+    font-size: calc(100% + 1vw + 1vh);
+}
+
+.text-responsive-sm {
+    font-size: calc(90% + 0.3vw + 0.3vh);
 }
 
 .hidden {
@@ -106,4 +114,13 @@ hr {
     left: 0;
     right: 0;
     margin: auto;
+}
+
+
+/***** MEDIA QUERIES **********/
+
+@media (max-width: 768px) {
+    .facet_sidebar {
+        display: none;
+    }
 }
