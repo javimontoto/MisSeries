@@ -196,8 +196,8 @@ function showSeries() {
         return;
     }
 
-    // Ordenamos las series según su posición
-    sortSeries();
+    // Ordenamos las series por orden alfabético
+    sortSeriesByTitle();
 
     // Limpiamos la lista de series
     listaSeries.innerHTML = '';
@@ -400,9 +400,26 @@ function showLoader(show) {
 }
 
 /**
+ * Ordena las series por orden albético modificando su posición
+ */
+function sortSeriesByTitle() {
+    let seriesArray = Object.values(misSeries);
+    if (seriesArray.length > 1) {
+        seriesArray.sort((a, b) => {
+            return a.title - b.title;
+        });
+        misSeries = {};
+        seriesArray.forEach(tarea => misSeries[tarea.id] = tarea);
+
+    } else
+        lastPosition = 1;
+
+}
+
+/**
  * Ordena las series según el campo posición
  */
-function sortSeries() {
+function sortSeriesByPosition() {
     let seriesArray = Object.values(misSeries);
     if (seriesArray.length > 1) {
         seriesArray.sort((a, b) => {
