@@ -238,17 +238,17 @@ function showSeries() {
     listaSeries.appendChild(fragment);
 
     // Hacemos la lista de series ordenable utilizando la función de Bootstrap
-    Sortable.create(listaSeries, {
-        onEnd: e => {
-            listaSeries.querySelectorAll('li').forEach((el, index) => {
-                series[el.dataset.id].position = index + 1;
-            });
+    // Sortable.create(listaSeries, {
+    //     onEnd: e => {
+    //         listaSeries.querySelectorAll('li').forEach((el, index) => {
+    //             series[el.dataset.id].position = index + 1;
+    //         });
 
-            // Actualizamos las series en FB
-            // TODO: Crear función que guarde todas las series a la vez
-            Object.values(series).forEach(tarea => saveSerie(tarea));
-        }
-    });
+    //         // Actualizamos las series en FB
+    //         // TODO: Crear función que guarde todas las series a la vez
+    //         Object.values(series).forEach(tarea => saveSerie(tarea));
+    //     }
+    // });
 
 }
 

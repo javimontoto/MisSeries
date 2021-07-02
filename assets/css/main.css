@@ -13,7 +13,7 @@ body {
 }
 
 .text-responsive-sm {
-    font-size: calc(90% + 0.3vw + 0.3vh);
+    font-size: calc(100% + 0.5vw + 0.5vh);
 }
 
 .hidden {
@@ -79,6 +79,14 @@ hr {
     color: #d27f07;
     font-weight: bold;
     border: 1px solid #856718;
+}
+
+.serie-available-chapter {
+    margin-bottom: 10px;
+}
+
+.buttons-chapter {
+    font-size: 35px;
 }
 
 .plus-chapter {
