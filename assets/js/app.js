@@ -276,7 +276,7 @@ function updateChapter(e, add) {
 
     } else {
         // Último cap disponible
-        if ((!add && lastChapter < availableChapter) || (add && availableChapter > 0)) {
+        if ((!add && lastChapter < availableChapter) || (add)) {
             serie.availableChapter = (add ? availableChapter + 1 : availableChapter - 1).toString();
             actualiza = true;
         }
@@ -403,7 +403,6 @@ function showLoader(show) {
  * Ordena las series por orden albético modificando su posición
  */
 function sortSeriesByTitle() {
-    console.log('ordenamos');
     let seriesArray = Object.values(misSeries);
     if (seriesArray.length > 1) {
         seriesArray.sort((a, b) => {
