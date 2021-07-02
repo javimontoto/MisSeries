@@ -403,10 +403,11 @@ function showLoader(show) {
  * Ordena las series por orden albético modificando su posición
  */
 function sortSeriesByTitle() {
+    console.log('ordenamos');
     let seriesArray = Object.values(misSeries);
     if (seriesArray.length > 1) {
         seriesArray.sort((a, b) => {
-            return a.title - b.title;
+            return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
         });
         misSeries = {};
         seriesArray.forEach(tarea => misSeries[tarea.id] = tarea);
