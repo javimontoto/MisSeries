@@ -15,7 +15,6 @@ const listaSeries = document.getElementById('lista-series'),
     registerModalButton = document.getElementById('register-modal-button'),
     loginButton = document.getElementById('login-button'),
     registerButton = document.getElementById('register-button'),
-    verificationButton = document.getElementById('verification-button'),
     logoutButton = document.getElementById('logout-button'),
     addSerieModalButton = document.getElementById('add-serie-modal-button'),
     resetPassButton = document.getElementById('reset-pass-button'),
@@ -39,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 loginButton.addEventListener('click', singInFB, false);
 registerButton.addEventListener('click', signUpFB, false);
-verificationButton.addEventListener('click', sendEmailVerification, false);
 logoutButton.addEventListener('click', signOutFB, false);
 resetPassButton.addEventListener('click', sendPasswordReset, false);
 addSerieModalButton.addEventListener('click', showModalSerie, false);
@@ -192,7 +190,15 @@ function showSeries() {
 
     // Comprobamos si la lista de objetos está vacía
     if (Object.values(misSeries).length === 0) {
-        listaSeries.innerHTML = `<div class="alert alert-dark text-center">No hay series pendientes guardadas 😢</div>`;
+        const divNoSeries = document.createElement('div');
+        divNoSeries.classList.add('alert', 'alert-secondary', 'text-center');
+        const divNoSeriesText = document.createElement('p');
+        divNoSeriesText.innerHTML = 'No hay series guardadas 😢.';
+        const buttonClone = addSerieModalButton.cloneNode(true);
+        buttonClone.addEventListener('click', showModalSerie, false);
+        divNoSeries.appendChild(divNoSeriesText);
+        divNoSeries.appendChild(buttonClone);
+        listaSeries.appendChild(divNoSeries);
         return;
     }
 
@@ -322,18 +328,12 @@ function showCloseButton(show) {
         addSerieModalButton.classList.replace('hidden', 'active');
         logoutButton.classList.replace('hidden', 'active');
 
-        // Si no ha verificado el email mostramos el botón de reenvío
-        if (!user.emailVerified) {
-            verificationButton.classList.replace('hidden', 'active');
-        }
-
     } else {
         // Ocultamos el botón de salir y mostramos los de entrar y registrarse
         // y limpiamos la lista
         misSeries = {};
         logoutButton.classList.replace('active', 'hidden');
         addSerieModalButton.classList.replace('active', 'hidden');
-        verificationButton.classList.replace('active', 'hidden');
         listaSeries.classList.replace('active', 'hidden');
         listaSeries.innerHTML = '';
         loginModalButton.classList.replace('hidden', 'active');

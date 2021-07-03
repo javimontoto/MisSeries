@@ -33,7 +33,13 @@ function singInFB() {
         firebase.auth().signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 $('#login-modal').modal('hide');
+                // Si no ha verificado el email no puede acceder => mostramos popup
                 user = firebase.auth().currentUser;
+                if (!user.emailVerified) {
+                    emailVerifiedDialog();
+                    return;
+                }
+
                 localStorage.setItem('user', JSON.stringify(user));
                 showCloseButton(true);
                 getAllSeries();
@@ -77,7 +83,8 @@ function signUpFB() {
     firebase.auth().createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             $('#register-modal').modal('hide');
-            showCloseButton(true);
+            showCloseButton(false);
+            user = userCredential.user;
 
             // Enviamos correo de verificación
             sendEmailVerification();
@@ -124,7 +131,8 @@ function signOutFB() {
 function sendEmailVerification() {
     user.sendEmailVerification()
         .then(() => {
-            myAlert('Confirmación de email', 'Se ha enviado un correo electrónico para que confirme la dirección de email proporcionada.');
+            myAlert('Confirmación de email', 
+                'Se ha enviado un correo electrónico para que confirme la dirección de email proporcionada (revise la bandeja de spam).<br><br>Una vez lo confirme podrá iniciar sesión.');
         })
         .catch((error) => {
             console.log(error);

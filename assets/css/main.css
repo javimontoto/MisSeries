@@ -127,12 +127,3 @@ hr {
     right: 0;
     margin: auto;
 }
-
-
-/***** MEDIA QUERIES **********/
-
-@media (max-width: 768px) {
-    .facet_sidebar {
-        display: none;
-    }
-}
