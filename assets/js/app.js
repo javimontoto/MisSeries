@@ -477,5 +477,5 @@ function checkLastPosition(newPosition) {
 }
 
 function updateSeriePlatformColor() {
-    seriePlatformColor.style.backgroundColor = seriePlatformColor.value;
+    seriePlatformColor.style.color = seriePlatformColor.value;
 }

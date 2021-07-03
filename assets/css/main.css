@@ -46,7 +46,15 @@ body {
 
 
 /*** FORMULARIO AÑADIR SERIES ***/
-
+select#serie-platform-color {
+    width: 110px;
+    background-color: #292929;
+    font-weight: 900;
+}
+select#serie-platform-color option {
+    font-weight: bold;
+    background-color: #292929;
+}
 
 /*** LISTA SERIES ***/
 
