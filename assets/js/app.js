@@ -205,6 +205,9 @@ function showSeries() {
     Object.values(misSeries).forEach(serie => {
         const clone = template.cloneNode(true);
 
+        // Comprobamos si la posición es mayor que la última guardada
+        checkLastPosition(serie.position);
+
         // Si el capítulo disponible es igual al visto marcamos la serie como vista
         if (serie.availableChapter === serie.lastChapter)
             clone.querySelector('li').classList.add('serie-viewed');
@@ -434,6 +437,12 @@ function sortSeriesByPosition() {
 
 }
 
+/**
+ * Clona un objeto serie
+ * 
+ * @param {Object} serie Objeto serie
+ * @returns 
+ */
 function cloneSerie(serie) {
     const newSerie = {};
     newSerie.id = serie.id;
@@ -446,4 +455,14 @@ function cloneSerie(serie) {
     newSerie.modified = serie.modified;
 
     return newSerie;
+}
+
+/**
+ * Comprueba si la nueva posición es mayor que la última y si lo es la actualiza
+ * 
+ * @param {Number} newPosition Nueva posición a comprobar si es la mayor
+ */
+function checkLastPosition(newPosition) {
+    if (newPosition > lastPosition)
+        lastPosition = newPosition;
 }
