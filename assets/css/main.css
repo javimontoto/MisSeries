@@ -1,10 +1,11 @@
-html,
-body {
-    min-width: 400px;
-}
-
 body {
     background: rgb(209, 125, 7);
+}
+
+.wrapper{
+    max-width: 1000px;
+    min-width: 500px;
+    margin: 0 auto;
 }
 
 .text-responsive {
@@ -86,6 +87,10 @@ hr {
 
 .buttons-chapter {
     font-size: 35px;
+}   
+
+.plus-chapter, .minus-chapter, .edit-serie {
+    cursor: pointer;
 }
 
 .plus-chapter {
