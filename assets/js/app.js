@@ -282,7 +282,7 @@ function updateChapter(e, add) {
     let lastChapter = parseInt(serie.lastChapter);
     let availableChapter = parseInt(serie.availableChapter);
     let newValue = -1;
-    const changeLastChapter = e.target.parentElement.parentElement.classList.contains('serie-last-chapter');
+    const changeLastChapter = e.target.parentElement.parentElement.parentElement.classList.contains('serie-last-chapter');
 
     if (changeLastChapter) {
         // Último cap visto
@@ -304,13 +304,13 @@ function updateChapter(e, add) {
             // Actualización correcta => refrescamos valores
             misSeries[serie.id] = serie;
             if (changeLastChapter) {
-                e.target.parentElement.firstElementChild.textContent = serie.lastChapter;
+                e.target.parentElement.parentElement.firstElementChild.textContent = serie.lastChapter;
             } else {
-                e.target.parentElement.firstElementChild.textContent = serie.availableChapter;
+                e.target.parentElement.parentElement.firstElementChild.textContent = serie.availableChapter;
             }
 
             // Comprobamos si la serie ya está vista
-            const serieBox = e.target.parentElement.parentElement.parentElement.parentElement;
+            const serieBox = e.target.parentElement.parentElement.parentElement.parentElement.parentElement;
             if (serie.availableChapter === serie.lastChapter) {
                 serieBox.classList.add('serie-viewed');
             } else {
