@@ -24,6 +24,7 @@ const listaSeries = document.getElementById('lista-series'),
     serieLastChapter = document.getElementById('serie-last-chapter'),
     serieSeason = document.getElementById('serie-season'),
     seriePlatform = document.getElementById('serie-platform'),
+    seriePlatformColor = document.getElementById('serie-platform-color'),
     addSerieButton = document.getElementById('add-serie-button');
 
 
@@ -42,6 +43,7 @@ logoutButton.addEventListener('click', signOutFB, false);
 resetPassButton.addEventListener('click', sendPasswordReset, false);
 addSerieModalButton.addEventListener('click', showModalSerie, false);
 addSerieButton.addEventListener('click', addSerie, false);
+seriePlatformColor.addEventListener('change', updateSeriePlatformColor, false);
 
 
 /*** FUNCIONES PRINCIPALES ***/
@@ -81,6 +83,7 @@ function showModalSerie(e) {
         serieAvailableChapter.value = serie.availableChapter;
         serieSeason.value = serie.season;
         seriePlatform.value = serie.platform;
+        seriePlatformColor.value = serie.platformColor;
         addSerieButton.dataset.id = serie.id;
 
         // Añadimos botón para borrar la serie si no existe
@@ -138,6 +141,7 @@ function addSerie(e) {
         serie.availableChapter = serieAvailableChapter.value;
         serie.season = serieSeason.value;
         serie.platform = seriePlatform.value;
+        serie.platformColor = seriePlatformColor.value;
         serie.position = lastPosition + 1;
 
         // Añadimos la serie a FB
@@ -154,6 +158,7 @@ function addSerie(e) {
         serie.availableChapter = serieAvailableChapter.value;
         serie.season = serieSeason.value;
         serie.platform = seriePlatform.value;
+        serie.platformColor = seriePlatformColor.value;
 
         updateSerie(serie);
     }
@@ -219,8 +224,9 @@ function showSeries() {
             clone.querySelector('li').classList.add('serie-viewed');
 
         // Recuperamos los valores
-        clone.querySelector('.serie-title').textContent = serie.title;
-        clone.querySelector('.serie-platform').innerHTML = `Temporada ${serie.season} en <b>${serie.platform}`;
+        clone.querySelector('.serie-title').textContent = `${serie.title} [${serie.season}]`;
+        clone.querySelector('.serie-platform').innerHTML = serie.platform;
+        clone.querySelector('.serie-platform').style.color = serie.platformColor;
         clone.querySelector('.serie-available-chapter-input').textContent = serie.availableChapter;
         clone.querySelector('.serie-last-chapter-input').textContent = serie.lastChapter;
 
@@ -450,6 +456,7 @@ function cloneSerie(serie) {
     newSerie.lastChapter = serie.lastChapter;
     newSerie.availableChapter = serie.availableChapter;
     newSerie.platform = serie.platform;
+    newSerie.platformColor = serie.platformColor;
     newSerie.season = serie.season;
     newSerie.position = serie.position;
     newSerie.modified = serie.modified;
@@ -465,4 +472,9 @@ function cloneSerie(serie) {
 function checkLastPosition(newPosition) {
     if (newPosition > lastPosition)
         lastPosition = newPosition;
+}
+
+function updateSeriePlatformColor() {
+    console.log(seriePlatformColor.value);
+    seriePlatformColor.style.backgroundColor = seriePlatformColor.value;
 }

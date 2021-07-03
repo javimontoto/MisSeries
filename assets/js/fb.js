@@ -179,6 +179,7 @@ function saveSerie(serie) {
             availableChapter: serie.availableChapter,
             season: serie.season,
             platform: serie.platform,
+            platformColor: serie.platformColor,
             position: serie.position,
             modified: Date.now()
         })
@@ -225,6 +226,7 @@ function updateSerie(serie) {
             position: serie.position,
             season: serie.season,
             platform: serie.platform,
+            platformColor: serie.platformColor,
             modified: Date.now()
         })
         .catch((error) => {
