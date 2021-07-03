@@ -86,6 +86,8 @@ function showModalSerie(e) {
         seriePlatformColor.value = serie.platformColor;
         addSerieButton.dataset.id = serie.id;
 
+        updateSeriePlatformColor();
+
         // Añadimos botón para borrar la serie si no existe
         let removeSerieButton = document.getElementById('remove-serie-button');
         if (typeof(removeSerieButton) === 'undefined' || removeSerieButton === null) {
@@ -475,6 +477,5 @@ function checkLastPosition(newPosition) {
 }
 
 function updateSeriePlatformColor() {
-    console.log(seriePlatformColor.value);
     seriePlatformColor.style.backgroundColor = seriePlatformColor.value;
 }
