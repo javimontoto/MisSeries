@@ -25,7 +25,8 @@ const listaSeries = document.getElementById('lista-series'),
     serieSeason = document.getElementById('serie-season'),
     seriePlatform = document.getElementById('serie-platform'),
     seriePlatformColor = document.getElementById('serie-platform-color'),
-    addSerieButton = document.getElementById('add-serie-button');
+    serieArchived = document.getElementById('serie-archived');
+addSerieButton = document.getElementById('add-serie-button');
 
 
 
@@ -84,6 +85,7 @@ function showModalSerie(e) {
         serieSeason.value = serie.season;
         seriePlatform.value = serie.platform;
         seriePlatformColor.value = serie.platformColor;
+        serieArchived.checked = serie.archived;
         addSerieButton.dataset.id = serie.id;
 
         updateSeriePlatformColor();
@@ -127,8 +129,6 @@ function addSerie(e) {
     e.preventDefault();
     let serie = {};
 
-    console.log('event.target: ', e.target);
-
     // Comprobamos si estamos logueados
     if (!localStorage.getItem('user')) {
         showCloseButton(false);
@@ -144,6 +144,7 @@ function addSerie(e) {
         serie.season = serieSeason.value;
         serie.platform = seriePlatform.value;
         serie.platformColor = seriePlatformColor.value;
+        serie.archived = serieArchived.checked;
         serie.position = lastPosition + 1;
 
         // Añadimos la serie a FB
@@ -161,6 +162,7 @@ function addSerie(e) {
         serie.season = serieSeason.value;
         serie.platform = seriePlatform.value;
         serie.platformColor = seriePlatformColor.value;
+        serie.archived = serieArchived.checked;
 
         updateSerie(serie);
     }

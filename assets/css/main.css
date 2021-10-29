@@ -2,7 +2,7 @@ body {
     background: rgb(209, 125, 7);
 }
 
-.wrapper{
+.wrapper {
     max-width: 1000px;
     min-width: 500px;
     margin: 0 auto;
@@ -46,15 +46,28 @@ body {
 
 
 /*** FORMULARIO AÑADIR SERIES ***/
+
 select#serie-platform-color {
     width: 110px;
     background-color: #292929;
     font-weight: 900;
 }
+
 select#serie-platform-color option {
     font-weight: bold;
     background-color: #292929;
 }
+
+#add-serie-form input.big-checkbox {
+    width: 20px;
+    height: 20px;
+}
+
+#add-serie-form label.big-checkbox {
+    margin-left: 10px;
+    line-height: 1.8;
+}
+
 
 /*** LISTA SERIES ***/
 
@@ -100,7 +113,9 @@ hr {
     margin-bottom: 10px;
 }
 
-.plus-chapter, .minus-chapter, .edit-serie {
+.plus-chapter,
+.minus-chapter,
+.edit-serie {
     cursor: pointer;
 }
 
@@ -111,7 +126,6 @@ hr {
 .serie-viewed {
     background-color: #fff3cda3;
 }
-
 
 
 /*** LOADER ***/

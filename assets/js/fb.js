@@ -131,7 +131,7 @@ function signOutFB() {
 function sendEmailVerification() {
     user.sendEmailVerification()
         .then(() => {
-            myAlert('Confirmación de email', 
+            myAlert('Confirmación de email',
                 'Se ha enviado un correo electrónico para que confirme la dirección de email proporcionada (revise la bandeja de spam).<br><br>Una vez lo confirme podrá iniciar sesión.');
         })
         .catch((error) => {
@@ -180,6 +180,7 @@ function saveSerie(serie) {
             season: serie.season,
             platform: serie.platform,
             platformColor: serie.platformColor,
+            archived: serie.archived,
             position: serie.position,
             modified: Date.now()
         })
@@ -227,6 +228,7 @@ function updateSerie(serie) {
             season: serie.season,
             platform: serie.platform,
             platformColor: serie.platformColor,
+            archived: serie.archived,
             modified: Date.now()
         })
         .catch((error) => {
