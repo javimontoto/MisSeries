@@ -234,7 +234,7 @@ function updateSerie(serie) {
             season: serie.season,
             platform: serie.platform,
             platformColor: serie.platformColor,
-            archived: serie.archived,
+            archived: serie.archived ? serie.archived : false,
             modified: Date.now()
         })
         .catch((error) => {
