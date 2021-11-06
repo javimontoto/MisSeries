@@ -489,6 +489,7 @@ function cloneSerie(serie) {
     newSerie.season = serie.season;
     newSerie.position = serie.position;
     newSerie.modified = serie.modified;
+    newSerie.archived = serie.archived;
 
     return newSerie;
 }
