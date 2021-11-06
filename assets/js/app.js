@@ -1,10 +1,10 @@
 /*** VARIABLES GLOBALES ***/
-/** Array con las series */
-let misSeries = {};
-/** Última posición ocupada */
-let lastPosition = 0;
-/** Objeto con el usuario usuario de FB */
-let user = {}; //=> Usuario de firebase 
+let misSeries = {}; // Series que se mostrarán (tras filtro)
+let misSeriesOrginal = {}; // Copia con las series de la BBDD
+let lastPosition = 0; // Última posición ocupada
+let user = {}; // Objeto con el usuario usuario de FB
+let allPlatforms = []; // Lista con todas las plataformas (para filtrar)
+let filterActive = false; // Marca si se está filtrando
 
 
 /*** SELECTORES ***/
@@ -17,6 +17,8 @@ const listaSeries = document.getElementById('lista-series'),
     registerButton = document.getElementById('register-button'),
     logoutButton = document.getElementById('logout-button'),
     addSerieModalButton = document.getElementById('add-serie-modal-button'),
+    filterButton = document.getElementById('filter-button'),
+    filterBox = document.getElementById('filter-box'),
     resetPassButton = document.getElementById('reset-pass-button'),
     addSerieForm = document.getElementById('add-serie-form'),
     serieTitle = document.getElementById('serie-title'),
@@ -25,8 +27,10 @@ const listaSeries = document.getElementById('lista-series'),
     serieSeason = document.getElementById('serie-season'),
     seriePlatform = document.getElementById('serie-platform'),
     seriePlatformColor = document.getElementById('serie-platform-color'),
-    serieArchived = document.getElementById('serie-archived');
-addSerieButton = document.getElementById('add-serie-button');
+    serieArchived = document.getElementById('serie-archived'),
+    addSerieButton = document.getElementById('add-serie-button'),
+    filterArchived = document.getElementById('filter-archived'),
+    filterPlatform = document.getElementById('filter-platform');
 
 
 
@@ -45,6 +49,8 @@ resetPassButton.addEventListener('click', sendPasswordReset, false);
 addSerieModalButton.addEventListener('click', showModalSerie, false);
 addSerieButton.addEventListener('click', addSerie, false);
 seriePlatformColor.addEventListener('change', updateSeriePlatformColor, false);
+filterButton.addEventListener('click', changeFilterButtonIcon, false);
+filterArchived.addEventListener('change', runFilter, false);
 
 
 /*** FUNCIONES PRINCIPALES ***/
@@ -57,7 +63,7 @@ function getAllSeries() {
         user = JSON.parse(localStorage.getItem('user'));
         showCloseButton(true);
         showLoader(true);
-        getFBSeries(showSeries);
+        getFBSeries(runFilter);
 
     } else {
         // No tenemos usuario logueado => Recuperamos las series guardas en localStorage
@@ -150,7 +156,7 @@ function addSerie(e) {
         // Añadimos la serie a FB
         if (saveSerie(serie)) {
             // Añadimos a la colección
-            misSeries[serie.id] = serie;
+            misSeriesOrginal[serie.id] = serie;
         }
 
     } else {
@@ -164,14 +170,19 @@ function addSerie(e) {
         serie.platformColor = seriePlatformColor.value;
         serie.archived = serieArchived.checked;
 
-        updateSerie(serie);
+        if (!updateSerie(serie)) {
+            myAlert('Atención', 'Se ha producido un error al actualizar la serie.');
+        } else {
+            misSeriesOrginal[serie.id] = serie;
+            fillAllPlatforms();
+        }
     }
 
     // Cerramos la modal y la limpiamos
     addSerieForm.reset();
     $('#add-serie-modal').modal('hide');
 
-    showSeries();
+    runFilter();
 }
 
 /**
@@ -185,6 +196,7 @@ function deleteSerie(e) {
         addSerieForm.reset();
         $('#add-serie-modal').modal('hide');
         delete misSeries[e.target.dataset.id];
+        delete misSeriesOrginal[e.target.dataset.id];
         showSeries();
     }
 }
@@ -194,6 +206,9 @@ function deleteSerie(e) {
  */
 function showSeries() {
 
+    // Limpiamos la lista de series
+    listaSeries.innerHTML = '';
+
     // Ocultamos el loader
     showLoader(false);
 
@@ -202,7 +217,7 @@ function showSeries() {
         const divNoSeries = document.createElement('div');
         divNoSeries.classList.add('alert', 'alert-secondary', 'text-center');
         const divNoSeriesText = document.createElement('p');
-        divNoSeriesText.innerHTML = 'No hay series guardadas 😢.';
+        divNoSeriesText.innerHTML = filterActive ? 'No hay series que coincidan con el filtro 😢.' : 'No hay series guardadas 😢.';
         const buttonClone = addSerieModalButton.cloneNode(true);
         buttonClone.addEventListener('click', showModalSerie, false);
         divNoSeries.appendChild(divNoSeriesText);
@@ -213,9 +228,6 @@ function showSeries() {
 
     // Ordenamos las series por orden alfabético
     sortSeriesByTitle();
-
-    // Limpiamos la lista de series
-    listaSeries.innerHTML = '';
 
     Object.values(misSeries).forEach(serie => {
         const clone = template.cloneNode(true);
@@ -255,6 +267,7 @@ function showSeries() {
     });
 
     listaSeries.appendChild(fragment);
+
 
     // Hacemos la lista de series ordenable utilizando la función de Bootstrap
     // Sortable.create(listaSeries, {
@@ -305,6 +318,7 @@ function updateChapter(e, add) {
         if (updateSerie(serie)) {
             // Actualización correcta => refrescamos valores
             misSeries[serie.id] = serie;
+            misSeriesOrginal[serie.id] = serie;
             if (changeLastChapter) {
                 e.target.parentElement.parentElement.firstElementChild.textContent = serie.lastChapter;
             } else {
@@ -324,6 +338,14 @@ function updateChapter(e, add) {
     }
 }
 
+/**
+ * Cambia el icono del botón de mostrar los filtros
+ */
+function changeFilterButtonIcon() {
+    const buttonIcon = filterButton.getElementsByTagName('i')[0];
+    buttonIcon.classList.toggle('fa-minus');
+    buttonIcon.classList.toggle('fa-plus');
+}
 
 /*** FUNCIONES AUXILIARES ***/
 /**
@@ -337,18 +359,21 @@ function showCloseButton(show) {
         registerModalButton.classList.replace('active', 'hidden');
         addSerieModalButton.classList.replace('hidden', 'active');
         logoutButton.classList.replace('hidden', 'active');
+        filterBox.classList.replace('hidden', 'active');
 
     } else {
         // Ocultamos el botón de salir y mostramos los de entrar y registrarse
         // y limpiamos la lista
         misSeries = {};
+        misSeriesOrginal = {};
+        allPlatforms = [];
         logoutButton.classList.replace('active', 'hidden');
         addSerieModalButton.classList.replace('active', 'hidden');
         listaSeries.classList.replace('active', 'hidden');
         listaSeries.innerHTML = '';
         loginModalButton.classList.replace('hidden', 'active');
         registerModalButton.classList.replace('hidden', 'active');
-
+        filterBox.classList.replace('active', 'hidden');
     }
 }
 
@@ -480,4 +505,69 @@ function checkLastPosition(newPosition) {
 
 function updateSeriePlatformColor() {
     seriePlatformColor.style.color = seriePlatformColor.value;
+}
+
+/**
+ * Recupera las plataformas registradas
+ */
+function fillAllPlatforms() {
+    const allPlatformsFull = Object.values(misSeriesOrginal).map(s => {
+        if (s.platform !== undefined && s.platform !== '') {
+            return s.platform;
+        }
+    });
+
+    // Quitamos los duplicados y ordenamos
+    allPlatforms = allPlatformsFull.length > 0 ? [...new Set(allPlatformsFull)].sort() : [];
+
+    fillSelectPlatformFilter();
+}
+
+/**
+ * Rellena las plataformas seleccionables del filtro
+ */
+function fillSelectPlatformFilter() {
+    // filterPlatform.removeEventListener('change', runFilter);
+
+    if (allPlatforms.length > 0) {
+        // Borramos los elementos que haya
+        const nOptions = filterPlatform.options.length - 1;
+        for (var i = nOptions; i >= 0; i--) {
+            filterPlatform.remove(i);
+        }
+
+        // Añadimos el elemento 0
+        var opt = document.createElement('option');
+        opt.value = 0;
+        opt.innerHTML = 'TODAS';
+        filterPlatform.appendChild(opt);
+    }
+
+    allPlatforms.forEach(p => {
+        var opt = document.createElement('option');
+        opt.value = p;
+        opt.innerHTML = p;
+        filterPlatform.appendChild(opt);
+    });
+
+    filterPlatform.addEventListener('change', runFilter, false);
+}
+
+/**
+ * Filtra las series según si están archivadas o por plataforma
+ */
+function runFilter() {
+    filterActive = true;
+    const selectedPlatform = filterPlatform.options[filterPlatform.selectedIndex].value;
+    const selectedArchived = document.getElementById('filter-archived').checked;
+
+    misSeries = {};
+    Object.values(misSeriesOrginal).forEach(serie => {
+        serie.archived = serie.archived ? serie.archived : false;
+        if ((serie.archived === selectedArchived) && (selectedPlatform == 0 || serie.platform === selectedPlatform)) {
+            misSeries[serie.id] = serie;
+        }
+    });
+
+    showSeries();
 }

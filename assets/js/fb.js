@@ -202,10 +202,16 @@ function getFBSeries(callback) {
         .then((series) => {
             if (series.exists()) {
                 misSeries = series.val();
+                misSeriesOrginal = series.val();
+                fillAllPlatforms();
+
             } else {
                 misSeries = {};
+                misSeriesOrginal = {};
+                allPlatforms = [];
                 lastPosition = 0;
             }
+
             callback();
 
         }).catch((error) => {

@@ -23,7 +23,7 @@ body {
 
 /*** BARRA SUPERIOR ***/
 
-.navbar {
+.container-fluid {
     background-color: #ffdba4;
 }
 
@@ -45,6 +45,27 @@ body {
 }
 
 
+/*** FILTRO ***/
+
+#filter-box {
+    padding: .5rem 1rem;
+}
+
+#filter-box .card-body {
+    border-color: #856404;
+}
+
+.filter-buttons {
+    text-align: right;
+}
+
+.filter-buttons>button {
+    color: #007bff;
+    background-color: transparent;
+    border-color: #007bff;
+}
+
+
 /*** FORMULARIO AÑADIR SERIES ***/
 
 select#serie-platform-color {
@@ -58,12 +79,12 @@ select#serie-platform-color option {
     background-color: #292929;
 }
 
-#add-serie-form input.big-checkbox {
+input.big-checkbox {
     width: 20px;
     height: 20px;
 }
 
-#add-serie-form label.big-checkbox {
+label.big-checkbox {
     margin-left: 10px;
     line-height: 1.8;
 }
