@@ -30,6 +30,7 @@ const listaSeries = document.getElementById('lista-series'),
     serieArchived = document.getElementById('serie-archived'),
     addSerieButton = document.getElementById('add-serie-button'),
     filterArchived = document.getElementById('filter-archived'),
+    filterAvailable = document.getElementById('filter-available'),
     filterPlatform = document.getElementById('filter-platform');
 
 
@@ -51,6 +52,8 @@ addSerieButton.addEventListener('click', addSerie, false);
 seriePlatformColor.addEventListener('change', updateSeriePlatformColor, false);
 filterButton.addEventListener('click', changeFilterButtonIcon, false);
 filterArchived.addEventListener('change', runFilter, false);
+filterAvailable.addEventListener('change', runFilter, false);
+
 
 
 /*** FUNCIONES PRINCIPALES ***/
@@ -296,7 +299,6 @@ function updateChapter(e, add) {
     const serie = cloneSerie(misSeries[idSerie]);
     let lastChapter = parseInt(serie.lastChapter);
     let availableChapter = parseInt(serie.availableChapter);
-    let newValue = -1;
     const changeLastChapter = e.target.parentElement.parentElement.parentElement.classList.contains('serie-last-chapter');
 
     if (changeLastChapter) {
@@ -555,20 +557,38 @@ function fillSelectPlatformFilter() {
 }
 
 /**
- * Filtra las series según si están archivadas o por plataforma
+ * Filtra las series según si están archivadas, plataforma o con caps disponibles
  */
 function runFilter() {
     filterActive = true;
     const selectedPlatform = filterPlatform.options[filterPlatform.selectedIndex].value;
-    const selectedArchived = document.getElementById('filter-archived').checked;
+    const selectedArchived = filterArchived.checked;
+    const selectedAvailable = filterAvailable.checked;
 
     misSeries = {};
     Object.values(misSeriesOrginal).forEach(serie => {
-        serie.archived = serie.archived ? serie.archived : false;
-        if ((serie.archived === selectedArchived) && (selectedPlatform == 0 || serie.platform === selectedPlatform)) {
+        if (checkFilterArchived(serie, selectedArchived) &&
+            checkFilterPlataform(serie, selectedPlatform) &&
+            checkFilterAvailable(serie, selectedAvailable)) {
             misSeries[serie.id] = serie;
         }
     });
 
     showSeries();
+}
+
+function checkFilterArchived(serie, selectedArchived) {
+    serie.archived = serie.archived ? serie.archived : false;
+    return serie.archived === selectedArchived;
+}
+
+function checkFilterPlataform(serie, selectedPlatform) {
+    return (selectedPlatform == 0 || serie.platform === selectedPlatform);
+}
+
+function checkFilterAvailable(serie, selectedAvailable) {
+    const lastChapter = parseInt(serie.lastChapter);
+    const availableChapter = parseInt(serie.availableChapter);
+
+    return selectedAvailable ? (availableChapter - lastChapter > 0) : true;
 }
