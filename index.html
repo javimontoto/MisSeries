@@ -93,32 +93,32 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="add-serie-form">
+                    <form id="add-serie-form" class="needs-validation" novalidate>
                         <div class="form-group">
                             <label for="serie-title" class="col-form-label">Título:</label>
-                            <input type="text" class="form-control" id="serie-title">
-                            <div class="invalid-feedback hidden">Título no válido</div>
+                            <input type="text" class="form-control" id="serie-title" maxlength="50" required>
+                            <div class="invalid-feedback">Campo obligatorio (máx. 50 caracteres)</div>
                         </div>
                         <div class="form-group">
                             <label for="serie-season" class="col-form-label">Temporada:</label>
-                            <input type="number" min="1" step="1" class="form-control" id="serie-season">
-                            <div class="invalid-feedback hidden"></div>
+                            <input type="number" min="1" step="1" class="form-control" id="serie-season" value="1" required>
+                            <div class="invalid-feedback">Campo obligatorio</div>
                         </div>
                         <div class="form-group">
                             <label for="serie-available-chapter" class="col-form-label">Capítulos disponibles:</label>
-                            <input type="number" min="0" step="1" class="form-control" id="serie-available-chapter">
-                            <div class="invalid-feedback hidden"></div>
+                            <input type="number" min="0" step="1" class="form-control" id="serie-available-chapter" value="0" required>
+                            <div class="invalid-feedback">Campo obligatorio</div>
                         </div>
                         <div class="form-group">
                             <label for="serie-last-chapter" class="col-form-label">Último capítulo visto:</label>
-                            <input type="number" min="0" step="1" class="form-control" id="serie-last-chapter">
-                            <div class="invalid-feedback hidden"></div>
+                            <input type="number" min="0" step="1" class="form-control" id="serie-last-chapter" value="0" required>
+                            <div class="invalid-feedback">Campo obligatorio</div>
                         </div>
                         <div class="d-flex justify-content-between">
                             <div class="form-group mr-2" style="width:300px;">
                                 <label for="serie-platform" class="col-form-label">Plataforma:</label>
-                                <input type="text" class="form-control" id="serie-platform">
-                                <div class="invalid-feedback hidden">Plataforma no válida</div>
+                                <input type="text" class="form-control" id="serie-platform" maxlength="15" required>
+                                <div class="invalid-feedback">Campo obligatorio (máx. 15 caracteres)</div>
                             </div>
                             <div class="form-group">
                                 <label for="serie-platform-color" class="col-form-label">Color:</label>
@@ -200,10 +200,9 @@
                             </div>
                             <div class="form-check mt-1 mr-2">
                                 <input type="checkbox" class="form-check-input big-checkbox" id="filter-available">
-                                <label class="form-check-label big-checkbox" for="filter-available">Con capítulos disponibles</label>
+                                <label class="form-check-label big-checkbox" for="filter-available">Capítulos disponibles</label>
                             </div>
                             <div class="d-flex">
-                                <label for="filter-platform" class="col-form-label mr-2">Plataforma:</label>
                                 <select type="text" class="form-control" id="filter-platform">
                                     <option value="1">No hay plataformas definidas</option>
                                 </select>

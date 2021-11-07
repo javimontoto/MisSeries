@@ -144,6 +144,12 @@ function addSerie(e) {
         return;
     }
 
+    // Validamos el formulario
+    if (addSerieForm.checkValidity() === false) {
+        addSerieForm.classList.add('was-validated');
+        return;
+    }
+
     if (e.target.dataset.id === undefined || e.target.dataset.id === 0) {
         // Creamos nueva serie
         serie.id = Date.now();
