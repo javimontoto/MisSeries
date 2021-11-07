@@ -249,6 +249,18 @@ function showSeries() {
         clone.querySelector('.serie-available-chapter-input').textContent = serie.availableChapter;
         clone.querySelector('.serie-last-chapter-input').textContent = serie.lastChapter;
 
+        // Botón de archivar serie
+        const archiveSerieButton = clone.querySelector('.archive-serie');
+        if (serie.archived) {
+            archiveSerieButton.classList.remove('fa-archive');
+            archiveSerieButton.classList.add('fa-box-open');
+        }
+        archiveSerieButton.dataset.id = serie.id;
+        archiveSerieButton.addEventListener('click', event => { archiveSerie(event); }, false);
+        if (serie.archived) {
+
+        }
+
         // Actualizamos el botón de editar la serie
         const editSerieButton = clone.querySelector('.edit-serie');
         editSerieButton.dataset.id = serie.id;
@@ -335,6 +347,9 @@ function updateChapter(e, add) {
                 if (serieBox.classList.contains('serie-viewed'))
                     serieBox.classList.remove('serie-viewed');
             }
+        } else {
+            myAlert('Atención', 'Se ha producido un error al actualizar la serie.');
+            t
         }
 
     }
@@ -347,6 +362,26 @@ function changeFilterButtonIcon() {
     const buttonIcon = filterButton.getElementsByTagName('i')[0];
     buttonIcon.classList.toggle('fa-minus');
     buttonIcon.classList.toggle('fa-plus');
+}
+
+/**
+ * Archiva o desarchiva (según si ya lo estuviera o no) una serie con botón directo
+ * @param {Event} e 
+ */
+function archiveSerie(e) {
+    const idSerie = e.target.dataset.id;
+    const serie = cloneSerie(misSeries[idSerie]);
+
+    serie.archived = !serie.archived;
+    if (updateSerie(serie)) {
+        // Actualización correcta => refrescamos valores
+        misSeries[serie.id] = serie;
+        misSeriesOrginal[serie.id] = serie;
+    } else {
+        myAlert('Atención', 'Se ha producido un error al actualizar la serie.');
+    }
+
+    runFilter();
 }
 
 /*** FUNCIONES AUXILIARES ***/

@@ -52,7 +52,9 @@ body {
 }
 
 #filter-box .card-body {
+    padding: 1vw;
     border-color: #856404;
+    background-color: #ffe9c8;
 }
 
 .filter-buttons {
@@ -136,7 +138,8 @@ hr {
 
 .plus-chapter,
 .minus-chapter,
-.edit-serie {
+.edit-serie,
+.archive-serie {
     cursor: pointer;
 }
 
@@ -146,6 +149,10 @@ hr {
 
 .serie-viewed {
     background-color: #fff3cda3;
+}
+
+.archive-serie {
+    margin-right: 3vw;
 }
 
 
