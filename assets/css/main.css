@@ -1,5 +1,6 @@
 body {
     background: rgb(209, 125, 7);
+    min-width: 500px;
 }
 
 .wrapper {
@@ -109,7 +110,7 @@ hr {
 }
 
 .serie-platform {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     padding: 0px 10px;
     border-radius: 5px;
     margin-right: 3vw;
@@ -121,7 +122,7 @@ hr {
 
 .serie-available-chapter-input,
 .serie-last-chapter-input {
-    font-size: 2rem;
+    font-size: 1.8rem;
     width: 4rem;
     padding: 5px;
     text-align: center;

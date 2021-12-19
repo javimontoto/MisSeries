@@ -17,7 +17,7 @@ const listaSeries = document.getElementById('lista-series'),
     registerButton = document.getElementById('register-button'),
     logoutButton = document.getElementById('logout-button'),
     addSerieModalButton = document.getElementById('add-serie-modal-button'),
-    filterButton = document.getElementById('filter-button'),
+    // filterButton = document.getElementById('filter-button'),
     filterBox = document.getElementById('filter-box'),
     resetPassButton = document.getElementById('reset-pass-button'),
     addSerieForm = document.getElementById('add-serie-form'),
@@ -50,7 +50,7 @@ resetPassButton.addEventListener('click', sendPasswordReset, false);
 addSerieModalButton.addEventListener('click', showModalSerie, false);
 addSerieButton.addEventListener('click', addSerie, false);
 seriePlatformColor.addEventListener('change', updateSeriePlatformColor, false);
-filterButton.addEventListener('click', changeFilterButtonIcon, false);
+// filterButton.addEventListener('click', changeFilterButtonIcon, false);
 filterArchived.addEventListener('change', runFilter, false);
 filterAvailable.addEventListener('change', runFilter, false);
 
@@ -364,11 +364,11 @@ function updateChapter(e, add) {
 /**
  * Cambia el icono del botón de mostrar los filtros
  */
-function changeFilterButtonIcon() {
-    const buttonIcon = filterButton.getElementsByTagName('i')[0];
-    buttonIcon.classList.toggle('fa-minus');
-    buttonIcon.classList.toggle('fa-plus');
-}
+// function changeFilterButtonIcon() {
+//     const buttonIcon = filterButton.getElementsByTagName('i')[0];
+//     buttonIcon.classList.toggle('fa-minus');
+//     buttonIcon.classList.toggle('fa-plus');
+// }
 
 /**
  * Archiva o desarchiva (según si ya lo estuviera o no) una serie con botón directo
@@ -557,12 +557,13 @@ function updateSeriePlatformColor() {
 function fillAllPlatforms() {
     const allPlatformsFull = Object.values(misSeriesOrginal).map(s => {
         if (s.platform !== undefined && s.platform !== '') {
-            return s.platform;
+            return { 'plataforma': s.platform, 'color': s.platformColor };
         }
     });
 
     // Quitamos los duplicados y ordenamos
-    allPlatforms = allPlatformsFull.length > 0 ? [...new Set(allPlatformsFull)].sort() : [];
+    // allPlatforms = allPlatformsFull.length > 0 ? [...new Set(allPlatformsFull)].sort() : [];
+    allPlatforms = allPlatformsFull;
 
     fillSelectPlatformFilter();
 }
@@ -589,8 +590,10 @@ function fillSelectPlatformFilter() {
 
     allPlatforms.forEach(p => {
         var opt = document.createElement('option');
-        opt.value = p;
-        opt.innerHTML = p;
+        opt.value = p.plataforma;
+        opt.innerHTML = adjustLabelSize(p.plataforma, 12); // Solo mostramos 12 caracteres
+        opt.style.color = p.color;
+        opt.style.backgroundColor = 'black';
         filterPlatform.appendChild(opt);
     });
 
@@ -632,4 +635,19 @@ function checkFilterAvailable(serie, selectedAvailable) {
     const availableChapter = parseInt(serie.availableChapter);
 
     return selectedAvailable ? (availableChapter - lastChapter > 0) : true;
+}
+
+/**
+ * Si el tamaño en caracteres de la label es mayor de size lo recorta
+ * 
+ * @param {String} label 
+ * @param {Ingeger} size 
+ * @returns label
+ */
+function adjustLabelSize(label, size) {
+    if (label.length > size) {
+        label = label.slice(0, size) + "...";
+    }
+
+    return label;
 }
