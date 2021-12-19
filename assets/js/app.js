@@ -562,8 +562,11 @@ function fillAllPlatforms() {
     });
 
     // Quitamos los duplicados y ordenamos
-    // allPlatforms = allPlatformsFull.length > 0 ? [...new Set(allPlatformsFull)].sort() : [];
-    allPlatforms = allPlatformsFull;
+    allPlatforms = allPlatformsFull.filter((value, index, self) =>
+        index === self.findIndex((p) => (
+            p.plataforma === value.plataforma
+        ))
+    );
 
     fillSelectPlatformFilter();
 }
@@ -594,6 +597,7 @@ function fillSelectPlatformFilter() {
         opt.innerHTML = adjustLabelSize(p.plataforma, 12); // Solo mostramos 12 caracteres
         opt.style.color = p.color;
         opt.style.backgroundColor = 'black';
+        opt.style.fontWeight = 'bold';
         filterPlatform.appendChild(opt);
     });
 
