@@ -68,6 +68,18 @@ body {
     border-color: #007bff;
 }
 
+.btn-limpiar-buscador {
+    background-color: #856404;
+    color: white;
+}
+
+
+/* Para que se muestre borrar en el input de buscar */
+
+input[type=search]::-webkit-search-cancel-button {
+    -webkit-appearance: searchfield-cancel-button;
+}
+
 
 /*** FORMULARIO AÑADIR SERIES ***/
 

@@ -18,6 +18,7 @@ const listaSeries = document.getElementById('lista-series'),
     logoutButton = document.getElementById('logout-button'),
     addSerieModalButton = document.getElementById('add-serie-modal-button'),
     // filterButton = document.getElementById('filter-button'),
+    buscador = document.getElementById('buscador'),
     filterBox = document.getElementById('filter-box'),
     resetPassButton = document.getElementById('reset-pass-button'),
     addSerieForm = document.getElementById('add-serie-form'),
@@ -32,6 +33,7 @@ const listaSeries = document.getElementById('lista-series'),
     filterArchived = document.getElementById('filter-archived'),
     filterAvailable = document.getElementById('filter-available'),
     filterPlatform = document.getElementById('filter-platform');
+filterLimpiarBoton = document.getElementById('limpiar-buscador');
 
 
 
@@ -51,8 +53,11 @@ addSerieModalButton.addEventListener('click', showModalSerie, false);
 addSerieButton.addEventListener('click', addSerie, false);
 seriePlatformColor.addEventListener('change', updateSeriePlatformColor, false);
 // filterButton.addEventListener('click', changeFilterButtonIcon, false);
-filterArchived.addEventListener('change', runFilter, false);
-filterAvailable.addEventListener('change', runFilter, false);
+filterArchived.addEventListener('change', () => runFilter(false), false);
+filterAvailable.addEventListener('change', () => runFilter(false), false);
+buscador.addEventListener('keyup', () => runFilter(false), false);
+buscador.addEventListener('search', () => runFilter(true), false);
+filterLimpiarBoton.addEventListener('click', clearFilter, false);
 
 
 
@@ -66,7 +71,7 @@ function getAllSeries() {
         user = JSON.parse(localStorage.getItem('user'));
         showCloseButton(true);
         showLoader(true);
-        getFBSeries(runFilter);
+        getFBSeries(() => runFilter(false));
 
     } else {
         // No tenemos usuario logueado => Recuperamos las series guardas en localStorage
@@ -191,7 +196,7 @@ function addSerie(e) {
     addSerieForm.reset();
     $('#add-serie-modal').modal('hide');
 
-    runFilter();
+    runFilter(false);
 }
 
 /**
@@ -387,7 +392,7 @@ function archiveSerie(e) {
         myAlert('Atención', 'Se ha producido un error al actualizar la serie.');
     }
 
-    runFilter();
+    runFilter(false);
 }
 
 /*** FUNCIONES AUXILIARES ***/
@@ -601,23 +606,27 @@ function fillSelectPlatformFilter() {
         filterPlatform.appendChild(opt);
     });
 
-    filterPlatform.addEventListener('change', runFilter, false);
+    filterPlatform.addEventListener('change', () => runFilter(false), false);
 }
 
 /**
- * Filtra las series según si están archivadas, plataforma o con caps disponibles
+ * Filtra las series según si están archivadas, plataforma, con caps disponibles y buscador
+ * 
+ * @param borraBuscador true => viene de picar en borrar el input del buscador
  */
-function runFilter() {
-    filterActive = true;
+function runFilter(borraBuscador = false) {
     const selectedPlatform = filterPlatform.options[filterPlatform.selectedIndex].value;
     const selectedArchived = filterArchived.checked;
     const selectedAvailable = filterAvailable.checked;
+    const textoBuscado = borraBuscador ? "" : buscador.value.toLowerCase();
+
 
     misSeries = {};
     Object.values(misSeriesOrginal).forEach(serie => {
         if (checkFilterArchived(serie, selectedArchived) &&
             checkFilterPlataform(serie, selectedPlatform) &&
-            checkFilterAvailable(serie, selectedAvailable)) {
+            checkFilterAvailable(serie, selectedAvailable) &&
+            checkFilterTextoBuscado(serie, textoBuscado)) {
             misSeries[serie.id] = serie;
         }
     });
@@ -641,6 +650,10 @@ function checkFilterAvailable(serie, selectedAvailable) {
     return selectedAvailable ? (availableChapter - lastChapter > 0) : true;
 }
 
+function checkFilterTextoBuscado(serie, textoBuscado) {
+    return serie.title.toLowerCase().includes(textoBuscado);
+}
+
 /**
  * Si el tamaño en caracteres de la label es mayor de size lo recorta
  * 
@@ -654,4 +667,13 @@ function adjustLabelSize(label, size) {
     }
 
     return label;
+}
+
+function clearFilter() {
+    buscador.value = "";
+    filterPlatform.value = '0';
+    filterAvailable.checked = false;
+    filterArchived.checked = false;
+
+    runFilter(false);
 }

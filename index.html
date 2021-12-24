@@ -171,7 +171,7 @@
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button id="add-serie-modal-button" class="btn btn-primary mr-1 mb-1 hidden">
+                            <button id="add-serie-modal-button" class="btn btn-success mr-1 mb-1 hidden">
                                 <i class="far fa-address-card"></i> Añadir serie
                             </button>
                         </li>
@@ -193,6 +193,12 @@
                 </div>
                 <div class="collapse" id="filter-container"> -->
                 <div class="card card-body">
+                    <div class="d-flex mb-2">
+                        <input id="buscador" type="search" class="form-control" placeholder="Buscar por título..." />
+                        <button id="limpiar-buscador" class="btn ml-1 btn-limpiar-buscador">
+                            <i class="far fa-trash-alt"></i>
+                            Limpiar filtro</button>
+                    </div>
                     <div class="d-flex justify-content-between flex-wrap filter-content">
                         <div class="form-check mt-1 mr-2">
                             <input type="checkbox" class="form-check-input big-checkbox" id="filter-available">
