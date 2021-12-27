@@ -33,8 +33,8 @@ const listaSeries = document.getElementById('lista-series'),
     addSerieButton = document.getElementById('add-serie-button'),
     filterArchived = document.getElementById('filter-archived'),
     filterAvailable = document.getElementById('filter-available'),
-    filterPlatform = document.getElementById('filter-platform');
-filterLimpiarBoton = document.getElementById('limpiar-buscador');
+    filterPlatform = document.getElementById('filter-platform'),
+    filterLimpiarBoton = document.getElementById('limpiar-buscador');
 
 
 
@@ -113,10 +113,10 @@ function showModalSerie(e) {
             removeSerieButton.id = 'remove-serie-button';
             removeSerieButton.classList.add('btn', 'btn-danger');
             removeSerieButton.textContent = 'Eliminar serie';
-            removeSerieButton.dataset.id = serie.id;
             const modalFooter = modal.querySelector('.modal-footer');
             modalFooter.insertBefore(removeSerieButton, modalFooter.lastElementChild);
         }
+        removeSerieButton.dataset.id = serie.id;
         removeSerieButton.addEventListener('click', deleteSerie, false);
 
     } else {
@@ -124,6 +124,8 @@ function showModalSerie(e) {
         modal.querySelector('.modal-title').textContent = 'Nueva serie';
         addSerieForm.reset();
         delete addSerieButton.dataset.id;
+
+        updateSeriePlatformColor();
 
         // Si está presente el botón borrar serie lo quitamos
         const removeSerieButton = document.getElementById('remove-serie-button');
@@ -143,6 +145,7 @@ function showModalSerie(e) {
 function addSerie(e) {
     e.preventDefault();
     let serie = {};
+    let update = false;
 
     // Comprobamos si estamos logueados
     if (!localStorage.getItem('user')) {
@@ -158,6 +161,7 @@ function addSerie(e) {
 
     if (e.target.dataset.id === undefined || e.target.dataset.id === 0) {
         // Creamos nueva serie
+        update = false;
         serie.id = Date.now();
         serie.title = serieTitle.value;
         serie.lastChapter = serieLastChapter.value;
@@ -167,18 +171,11 @@ function addSerie(e) {
         serie.platformColor = seriePlatformColor.value;
         serie.archived = serieArchived.checked;
         serie.position = lastPosition + 1;
-        serie.caratula = serieCaratula.files[0];
-
-        // Añadimos la serie a FB
-        if (saveSerie(serie, false)) {
-            misSeriesOrginal[serie.id] = serie;
-            fillAllPlatforms();
-        } else {
-            myAlert('Atención', 'Se ha producido un error al añadir la serie.');
-        }
+        serie.file = serieCaratula.files[0];
 
     } else {
         // Actualizamos serie
+        update = true;
         serie = misSeries[e.target.dataset.id];
         serie.title = serieTitle.value;
         serie.lastChapter = serieLastChapter.value;
@@ -187,13 +184,25 @@ function addSerie(e) {
         serie.platform = seriePlatform.value;
         serie.platformColor = seriePlatformColor.value;
         serie.archived = serieArchived.checked;
-        serie.caratula = serieCaratula.files[0];
+        serie.file = serieCaratula.files[0];
+    }
 
-        if (saveSerie(serie, true)) {
+    if (serie.file !== undefined) {
+        // Guardamos la serie y la carátula => con promesa
+        saveSerie(serie, update)
+            .then(() => {
+                misSeriesOrginal[serie.id] = serie;
+                fillAllPlatforms();
+                runFilter(false);
+
+            }).catch(() => {
+                myAlert('Atención', `Se ha producido un error al ${update ? 'actualizar' : 'crear'} la serie.`);
+            });
+    } else {
+        if (saveSerie(serie, update)) {
             misSeriesOrginal[serie.id] = serie;
             fillAllPlatforms();
-        } else {
-            myAlert('Atención', 'Se ha producido un error al actualizar la serie.');
+            runFilter(false);
         }
     }
 
@@ -201,7 +210,6 @@ function addSerie(e) {
     addSerieForm.reset();
     $('#add-serie-modal').modal('hide');
 
-    runFilter(false);
 }
 
 /**
@@ -265,9 +273,9 @@ function showSeries() {
         clone.querySelector('.serie-available-chapter-input').textContent = serie.availableChapter;
         clone.querySelector('.serie-last-chapter-input').textContent = serie.lastChapter;
 
-        if (serie.caratula !== undefined && serie.caratula !== '') {
+        if (serie.caratula !== undefined) {
             const caratula = clone.querySelector('.serie-caratula');
-            caratula.src = serie.caratula;
+            caratula.src = serie.caratula.url;
             caratula.classList.remove('default-image');
         }
 

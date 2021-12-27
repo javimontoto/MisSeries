@@ -167,10 +167,10 @@ hr {
 .serie-caratula-box {
     display: block;
     margin: 0 auto;
-    padding: 10px 10px 10px 0;
+    padding: 10px 15px 10px 0;
 }
 
-.serie-caratula{
+.serie-caratula {
     max-width: 130px;
     max-height: 140px;
     border-radius: 5px;

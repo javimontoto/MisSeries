@@ -173,9 +173,9 @@ function sendPasswordReset() {
  * @param {boolean} update Indica si actualiza (true) o crea (false)
  */
 function saveSerie(serie, update = false) {
-   
+
     // Si tiene imagen la guardamos primero para obtener la referencia
-    if (serie.caratula !== undefined && serie.caratula !== ''){
+    if (serie.file !== undefined) {
         return update ? saveCover(serie, updateSerie) : saveCover(serie, createSerie);
     } else {
         return update ? updateSerie(serie) : createSerie(serie);
@@ -188,22 +188,48 @@ function saveSerie(serie, update = false) {
  */
 function createSerie(serie) {
     firebase.database().ref('series/' + user.uid + '/' + serie.id).set({
-        id: serie.id,
-        title: serie.title,
-        lastChapter: serie.lastChapter,
-        availableChapter: serie.availableChapter,
-        season: serie.season,
-        platform: serie.platform,
-        platformColor: serie.platformColor,
-        archived: serie.archived,
-        position: serie.position,
-        modified: Date.now(),
-        caratula: serie.caratula !== undefined ? serie.caratula : ''
-    })
-    .catch((error) => {
-        myAlert('Atención', error.message);
-        return false;
-    });
+            id: serie.id,
+            title: serie.title,
+            lastChapter: serie.lastChapter,
+            availableChapter: serie.availableChapter,
+            season: serie.season,
+            platform: serie.platform,
+            platformColor: serie.platformColor,
+            archived: serie.archived,
+            position: serie.position,
+            modified: Date.now(),
+            caratula: serie.caratula !== undefined ? { url: serie.caratula.url, name: serie.caratula.name } : {}
+        })
+        .catch((error) => {
+            myAlert('Atención', error.message);
+            return false;
+        });
+
+    return true;
+}
+
+/**
+ * Actualiza una serie
+ * @param {Object} serie Objeto de tipo serie
+ */
+function updateSerie(serie) {
+    firebase.database().ref('series/' + user.uid + '/' + serie.id).update({
+            id: serie.id,
+            title: serie.title,
+            lastChapter: serie.lastChapter,
+            availableChapter: serie.availableChapter,
+            position: serie.position,
+            season: serie.season,
+            platform: serie.platform,
+            platformColor: serie.platformColor,
+            archived: (serie.archived !== undefined ? serie.archived : false),
+            modified: Date.now(),
+            caratula: serie.caratula !== undefined ? { url: serie.caratula.url, name: serie.caratula.name } : {}
+        })
+        .catch((error) => {
+            myAlert('Atención', error.message);
+            return false;
+        });
 
     return true;
 }
@@ -237,48 +263,31 @@ function getFBSeries(callback) {
 }
 
 /**
- * Actualiza una serie
- * @param {Object} serie Objeto de tipo serie
- */
-function updateSerie(serie) {
-    firebase.database().ref('series/' + user.uid + '/' + serie.id).update({
-        id: serie.id,
-        title: serie.title,
-        lastChapter: serie.lastChapter,
-        availableChapter: serie.availableChapter,
-        position: serie.position,
-        season: serie.season,
-        platform: serie.platform,
-        platformColor: serie.platformColor,
-        archived: (serie.archived !== undefined ? serie.archived : false),
-        modified: Date.now(), 
-        caratula: serie.caratula !== undefined ? serie.caratula : ''
-    })
-    .catch((error) => {
-        myAlert('Atención', error.message);
-        return false;
-    });
-
-    return true;
-}
-
-/**
- * Elimina una serie
+ * Elimina una serie y, si la tiene su carátula
+ * 
  * @param {Object} serie Objeto de tipo serie
  */
 function removeSerie(serie) {
+
     // Si tiene carátula la borramos
-    if (serie.caratula !== undefined && serie.caratula !== ''){
-        removeCover()
+    if (serie.caratula !== undefined) {
+        return deleteCover(serie, delSerie);
+    } else {
+        return delSerie(serie);
     }
+}
 
-
+/**
+ * elima una serie
+ * 
+ * @param {Object} serie Objeto de tipo serie
+ */
+function delSerie(serie) {
     firebase.database().ref('series/' + user.uid + '/' + serie.id).remove()
         .catch((error) => {
             myAlert('Atención', error.message);
             return false;
         });
-
     return true;
 }
 
@@ -290,48 +299,67 @@ function removeSerie(serie) {
  * @returns 
  */
 function saveCover(serie, callback) {
-    if (serie.caratula !== undefined && serie.caratula !== '') {
-        let storageRef = firebase.storage().ref('series/caratulas/' + user.uid + '/');
+    return new Promise(function(resolve, reject) {
 
-        let extension = getExtensionFile(serie.caratula.name);
+        if (serie.file !== undefined) {
+            let storageRef = firebase.storage().ref('series/caratulas/' + user.uid + '/');
 
-        var metadata = {
-            'contentType': serie.caratula.type
-        };
+            let extension = getExtensionFile(serie.file.name);
 
-        storageRef.child(serie.id + '.' + extension).put(serie.caratula, metadata).then(snapshot => {
-           
-            serie.caratula = snapshot.fullPath;
+            var metadata = {
+                'contentType': serie.file.type
+            };
 
-            console.log('serie.caratula:', serie.caratula);
+            storageRef.child(serie.id + '.' + extension).put(serie.file, metadata)
+                .then(snapshot => {
+                    // Let's get a download URL for the file.
+                    snapshot.ref.getDownloadURL().then(url => {
+                        caratula = {};
+                        caratula.name = serie.id + '.' + extension;
+                        caratula.url = url;
+                        serie.caratula = caratula;
+                        resolve(callback(serie));
+                    }).catch(error => {
+                        myAlert('Atención', error.message);
+                        reject(false);
+                    });
 
-            callback(serie);
+                }).catch(error => {
+                    myAlert('Atención', error.message);
+                    reject(false);
+                });
 
-            // Let's get a download URL for the file.
-            // snapshot.ref.getDownloadURL().then(function(url) {
-            //   serie.caratula = url;
-            //   console.log('serie.caratula:', serie.caratula);
-  
-            //   callback(serie);
-            // }).catch(error => {
-            //     myAlert('Atención', error.message);
-            //     return false;
-            // });
-
-        }).catch(error => {
-            myAlert('Atención', error.message);
-            return false;
-        });
-       
-    } 
-    
-    return true;
+        }
+    });
 }
 
-function getExtensionFile(filename){
+function getExtensionFile(filename) {
     if (filename !== "" && filename.includes('.')) {
         return filename.split('.').pop();
     }
 
     return '';
+}
+
+/**
+ * Borra una serie con carátula
+ * 
+ * @param {Object} serie 
+ * @returns 
+ */
+function deleteCover(serie, deleteSerie = false) {
+    return new Promise(function(resolve, reject) {
+        firebase.storage().ref('series/caratulas/' + user.uid + '/' + serie.caratula.name).delete().then(() => {
+            // File deleted successfully
+            resolve(delSerie(serie));
+        }).catch((error) => {
+            if (error.code === "storage/object-not-found") {
+                // La carátula no existe => podemos borrar la serie
+                resolve(delSerie(serie));
+            } else {
+                myAlert('Atención', error.message);
+                reject(false);
+            }
+        });
+    });
 }
