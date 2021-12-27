@@ -13,10 +13,6 @@ body {
     font-size: calc(100% + 1vw + 1vh);
 }
 
-.text-responsive-sm {
-    font-size: 20px;
-}
-
 .hidden {
     display: none !important;
 }
@@ -125,7 +121,6 @@ hr {
     font-size: 1.6rem;
     padding: 0px 10px;
     border-radius: 5px;
-    margin-right: 3vw;
     color: white;
     font-weight: bold;
     border: 1px solid #856718;
@@ -139,7 +134,6 @@ hr {
     padding: 0 5px;
     text-align: center;
     border-radius: 5px;
-    margin-right: 35px;
     color: #d27f07;
     font-weight: bold;
     border: 1px solid #856718;
@@ -152,16 +146,11 @@ hr {
     cursor: pointer;
 }
 
-.plus-chapter {
-    margin-right: 25px;
-}
-
 .serie-viewed {
     background-color: #fff3cda3;
 }
 
 .archive-serie {
-    margin-right: 3vw;
 }
 
 .serie-caratula-box {
