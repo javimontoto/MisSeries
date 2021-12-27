@@ -168,26 +168,42 @@ function sendPasswordReset() {
 
 /*** MÉTODOS FB */
 /**
- * Guarda la serie en FB
+ * Guarda la serie 
+ * @param {Object} serie Objeto de tipo serie
+ * @param {boolean} update Indica si actualiza (true) o crea (false)
+ */
+function saveSerie(serie, update = false) {
+   
+    // Si tiene imagen la guardamos primero para obtener la referencia
+    if (serie.caratula !== undefined && serie.caratula !== ''){
+        return update ? saveCover(serie, updateSerie) : saveCover(serie, createSerie);
+    } else {
+        return update ? updateSerie(serie) : createSerie(serie);
+    }
+}
+
+/**
+ * Crea la serie en FB
  * @param {Object} serie Objeto de tipo serie
  */
-function saveSerie(serie) {
+function createSerie(serie) {
     firebase.database().ref('series/' + user.uid + '/' + serie.id).set({
-            id: serie.id,
-            title: serie.title,
-            lastChapter: serie.lastChapter,
-            availableChapter: serie.availableChapter,
-            season: serie.season,
-            platform: serie.platform,
-            platformColor: serie.platformColor,
-            archived: serie.archived,
-            position: serie.position,
-            modified: Date.now()
-        })
-        .catch((error) => {
-            myAlert('Atención', error.message);
-            return false;
-        });
+        id: serie.id,
+        title: serie.title,
+        lastChapter: serie.lastChapter,
+        availableChapter: serie.availableChapter,
+        season: serie.season,
+        platform: serie.platform,
+        platformColor: serie.platformColor,
+        archived: serie.archived,
+        position: serie.position,
+        modified: Date.now(),
+        caratula: serie.caratula !== undefined ? serie.caratula : ''
+    })
+    .catch((error) => {
+        myAlert('Atención', error.message);
+        return false;
+    });
 
     return true;
 }
@@ -226,21 +242,22 @@ function getFBSeries(callback) {
  */
 function updateSerie(serie) {
     firebase.database().ref('series/' + user.uid + '/' + serie.id).update({
-            id: serie.id,
-            title: serie.title,
-            lastChapter: serie.lastChapter,
-            availableChapter: serie.availableChapter,
-            position: serie.position,
-            season: serie.season,
-            platform: serie.platform,
-            platformColor: serie.platformColor,
-            archived: (serie.archived !== undefined ? serie.archived : false),
-            modified: Date.now()
-        })
-        .catch((error) => {
-            myAlert('Atención', error.message);
-            return false;
-        });
+        id: serie.id,
+        title: serie.title,
+        lastChapter: serie.lastChapter,
+        availableChapter: serie.availableChapter,
+        position: serie.position,
+        season: serie.season,
+        platform: serie.platform,
+        platformColor: serie.platformColor,
+        archived: (serie.archived !== undefined ? serie.archived : false),
+        modified: Date.now(), 
+        caratula: serie.caratula !== undefined ? serie.caratula : ''
+    })
+    .catch((error) => {
+        myAlert('Atención', error.message);
+        return false;
+    });
 
     return true;
 }
@@ -250,6 +267,12 @@ function updateSerie(serie) {
  * @param {Object} serie Objeto de tipo serie
  */
 function removeSerie(serie) {
+    // Si tiene carátula la borramos
+    if (serie.caratula !== undefined && serie.caratula !== ''){
+        removeCover()
+    }
+
+
     firebase.database().ref('series/' + user.uid + '/' + serie.id).remove()
         .catch((error) => {
             myAlert('Atención', error.message);
@@ -257,4 +280,58 @@ function removeSerie(serie) {
         });
 
     return true;
+}
+
+/**
+ * Guarda la carátula de la serie
+ * 
+ * @param {Object} serie Objeto de tipo serie
+ * @param {function} callback Función que se ejutará después de realizar la petición a FB si todo va bien
+ * @returns 
+ */
+function saveCover(serie, callback) {
+    if (serie.caratula !== undefined && serie.caratula !== '') {
+        let storageRef = firebase.storage().ref('series/caratulas/' + user.uid + '/');
+
+        let extension = getExtensionFile(serie.caratula.name);
+
+        var metadata = {
+            'contentType': serie.caratula.type
+        };
+
+        storageRef.child(serie.id + '.' + extension).put(serie.caratula, metadata).then(snapshot => {
+           
+            serie.caratula = snapshot.fullPath;
+
+            console.log('serie.caratula:', serie.caratula);
+
+            callback(serie);
+
+            // Let's get a download URL for the file.
+            // snapshot.ref.getDownloadURL().then(function(url) {
+            //   serie.caratula = url;
+            //   console.log('serie.caratula:', serie.caratula);
+  
+            //   callback(serie);
+            // }).catch(error => {
+            //     myAlert('Atención', error.message);
+            //     return false;
+            // });
+
+        }).catch(error => {
+            myAlert('Atención', error.message);
+            return false;
+        });
+       
+    } 
+    
+    return true;
+}
+
+function getExtensionFile(filename){
+    if (filename !== "" && filename.includes('.')) {
+        return filename.split('.').pop();
+    }
+
+    return '';
 }

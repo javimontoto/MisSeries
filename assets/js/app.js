@@ -29,6 +29,7 @@ const listaSeries = document.getElementById('lista-series'),
     seriePlatform = document.getElementById('serie-platform'),
     seriePlatformColor = document.getElementById('serie-platform-color'),
     serieArchived = document.getElementById('serie-archived'),
+    serieCaratula = document.getElementById('serie-caratula'),
     addSerieButton = document.getElementById('add-serie-button'),
     filterArchived = document.getElementById('filter-archived'),
     filterAvailable = document.getElementById('filter-available'),
@@ -166,11 +167,14 @@ function addSerie(e) {
         serie.platformColor = seriePlatformColor.value;
         serie.archived = serieArchived.checked;
         serie.position = lastPosition + 1;
+        serie.caratula = serieCaratula.files[0];
 
         // Añadimos la serie a FB
-        if (saveSerie(serie)) {
-            // Añadimos a la colección
+        if (saveSerie(serie, false)) {
             misSeriesOrginal[serie.id] = serie;
+            fillAllPlatforms();
+        } else {
+            myAlert('Atención', 'Se ha producido un error al añadir la serie.');
         }
 
     } else {
@@ -183,12 +187,13 @@ function addSerie(e) {
         serie.platform = seriePlatform.value;
         serie.platformColor = seriePlatformColor.value;
         serie.archived = serieArchived.checked;
+        serie.caratula = serieCaratula.files[0];
 
-        if (!updateSerie(serie)) {
-            myAlert('Atención', 'Se ha producido un error al actualizar la serie.');
-        } else {
+        if (saveSerie(serie, true)) {
             misSeriesOrginal[serie.id] = serie;
             fillAllPlatforms();
+        } else {
+            myAlert('Atención', 'Se ha producido un error al actualizar la serie.');
         }
     }
 
@@ -259,6 +264,12 @@ function showSeries() {
         clone.querySelector('.serie-platform').style.color = serie.platformColor;
         clone.querySelector('.serie-available-chapter-input').textContent = serie.availableChapter;
         clone.querySelector('.serie-last-chapter-input').textContent = serie.lastChapter;
+
+        if (serie.caratula !== undefined && serie.caratula !== '') {
+            const caratula = clone.querySelector('.serie-caratula');
+            caratula.src = serie.caratula;
+            caratula.classList.remove('default-image');
+        }
 
         // Botón de archivar serie
         const archiveSerieButton = clone.querySelector('.archive-serie');
@@ -358,6 +369,8 @@ function updateChapter(e, add) {
                 if (serieBox.classList.contains('serie-viewed'))
                     serieBox.classList.remove('serie-viewed');
             }
+
+            runFilter(false);
         } else {
             myAlert('Atención', 'Se ha producido un error al actualizar la serie.');
             t

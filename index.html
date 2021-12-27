@@ -132,6 +132,10 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="serie-caratula" class="col-form-label">Carátula:</label>
+                            <input type="file" class="form-control" id="serie-caratula" accept=".jpg, .jpeg, .png">
+                        </div>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input big-checkbox" id="serie-archived">
                             <label class="form-check-label big-checkbox" for="exampleCheck1">Archivada</label>
@@ -224,31 +228,36 @@
     </div>
 
     <template id="template">
-        <li class="alert alert-warning d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-center">
-                <h4 class="serie-title m-0 font-weight-bold">Título serie 1</h4>
-                <div class="d-flex align-items-center">
-                    <div class="serie-platform">Plataforma</div>
-                    <h2 class="mb-0"><i class="fas fa-archive archive-serie"></i></h2>
-                    <h2 class="mb-0"><i class="fas fa-cog edit-serie"></i></h2>
-                </div>
+        <li class="alert alert-warning d-flex justify-content-between flex-wrap align-items-center">
+            <div class="serie-caratula-box">
+                <img src="./assets/icons/favicon.png" alt="Carátula" class="serie-caratula default-image">
             </div>
-            <hr>
-            <div class="d-flex flex-column">
-                <div class="serie-available-chapter d-flex justify-content-between align-items-center">
-                    <h5 class="">Último capítulo disponible:</h5>
-                    <div class="buttons-chapter d-flex align-items-center">
-                        <div class="serie-available-chapter-input"></div>
-                        <h2><i class="fas fa-plus plus-chapter"></i></h2>
-                        <h2><i class="fas fa-minus minus-chapter"></i></h2>
+            <div style="flex-grow: 2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="serie-title m-0 font-weight-bold">Título serie 1</h4>
+                    <div class="d-flex align-items-center">
+                        <div class="serie-platform">Plataforma</div>
+                        <h2 class="mb-0"><i class="fas fa-archive archive-serie"></i></h2>
+                        <h2 class="mb-0"><i class="fas fa-cog edit-serie"></i></h2>
                     </div>
                 </div>
-                <div class="serie-last-chapter d-flex justify-content-between align-items-center">
-                    <h5 class="">Último capítulo visto:</h5>
-                    <div class="buttons-chapter d-flex align-items-center">
-                        <div class="serie-last-chapter-input"></div>
-                        <h2><i class="fas fa-plus plus-chapter"></i></h2>
-                        <h2><i class="fas fa-minus minus-chapter"></i></h2>
+                <hr>
+                <div class="d-flex flex-column">
+                    <div class="serie-available-chapter d-flex justify-content-between align-items-center">
+                        <h5 class="">Último capítulo disponible:</h5>
+                        <div class="buttons-chapter d-flex align-items-center">
+                            <div class="serie-available-chapter-input"></div>
+                            <h2><i class="fas fa-plus plus-chapter"></i></h2>
+                            <h2><i class="fas fa-minus minus-chapter"></i></h2>
+                        </div>
+                    </div>
+                    <div class="serie-last-chapter d-flex justify-content-between align-items-center">
+                        <h5 class="">Último capítulo visto:</h5>
+                        <div class="buttons-chapter d-flex align-items-center">
+                            <div class="serie-last-chapter-input"></div>
+                            <h2><i class="fas fa-plus plus-chapter"></i></h2>
+                            <h2><i class="fas fa-minus minus-chapter"></i></h2>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -259,6 +268,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-storage.js"></script>  
+
+
 
     <!-- Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
