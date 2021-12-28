@@ -115,6 +115,8 @@ hr {
     width: 100%;
     background-color: #856404;
     height: 1px;
+    margin-top: 0.8rem;
+    margin-bottom: 0.8rem;
 }
 
 .serie-platform {
@@ -125,6 +127,11 @@ hr {
     font-weight: bold;
     border: 1px solid #856718;
     background-color: #292929;
+}
+
+.serie-available-chapter>h5,
+.serie-last-chapter>h5 {
+    margin-bottom: 0;
 }
 
 .serie-available-chapter-input,
@@ -139,6 +146,10 @@ hr {
     border: 1px solid #856718;
 }
 
+.button-update-chapter{
+    font-size: 28px;
+}
+
 .plus-chapter,
 .minus-chapter,
 .edit-serie,
@@ -150,18 +161,9 @@ hr {
     background-color: #fff3cda3;
 }
 
-.archive-serie {
-}
-
-.serie-caratula-box {
-    display: block;
-    margin: 0 auto;
-    padding: 10px 15px 10px 0;
-}
-
 .serie-caratula {
-    max-width: 130px;
-    max-height: 140px;
+    max-width: 98px;
+    max-height: 130px;
     border-radius: 5px;
 }
 
