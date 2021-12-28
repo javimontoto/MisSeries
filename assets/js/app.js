@@ -277,6 +277,7 @@ function showSeries() {
             const caratula = clone.querySelector('.serie-caratula');
             caratula.src = serie.caratula.url;
             caratula.classList.remove('default-image');
+            caratula.addEventListener("click", () => showCoverModal(serie), false);
         }
 
         // Botón de archivar serie
@@ -698,4 +699,14 @@ function clearFilter() {
     filterArchived.checked = false;
 
     runFilter(false);
+}
+
+function  showCoverModal(serie) {
+    modal = document.getElementById('cover-modal');
+
+    modal.querySelector('.modal-title').textContent = `${serie.title} [Temporada ${serie.season}]`
+    modal.querySelector('#cover-image').src = serie.caratula.url;
+
+    // Mostramos las modal con jQuery
+    $('#cover-modal').modal('show');
 }

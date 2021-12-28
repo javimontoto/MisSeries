@@ -165,10 +165,12 @@ hr {
     max-width: 98px;
     max-height: 130px;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .default-image {
     opacity: 0.5;
+    cursor: initial;
 }
 
 
