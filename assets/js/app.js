@@ -153,6 +153,15 @@ function addSerie(e) {
         return;
     }
 
+    // Comprobamos si tiene carátula su tamaño
+    if (serieCaratula.files[0] !== undefined && serieCaratula.files[0].size > 1024*1024) {
+        serieCaratula.classList.add('is-invalid');
+        addSerieForm.classList.add('was-validated');
+        return;
+    } else {
+        serieCaratula.classList.remove('is-invalid');
+    }
+
     // Validamos el formulario
     if (addSerieForm.checkValidity() === false) {
         addSerieForm.classList.add('was-validated');
