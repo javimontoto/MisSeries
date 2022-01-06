@@ -287,7 +287,7 @@ function showSeries() {
     }
 
     // Ordenamos las series por orden alfabético
-    sortElementosByTitle();
+    sortSeriesByTitle();
 
     Object.values(misSeries).forEach(serie => {
         const clone = templateSerie.cloneNode(true);
@@ -467,7 +467,7 @@ function showPeliculas() {
     }
 
     // Ordenamos las series por orden alfabético
-    sortElementosByTitle();
+    sortPeliculasByTitle();
 
     Object.values(misPeliculas).forEach(pelicula => {
         const clone = templatePelicula.cloneNode(true);
@@ -786,21 +786,35 @@ function showLoader(show) {
 }
 
 /**
- * Ordena las series por orden albético modificando su posición
+ * Ordena las series por orden albético
  */
-function sortElementosByTitle() {
-    let seriesPeliculasOriginal = tipoCollection === 'series' ? misSeriesOriginal : misPeliculasOriginal;
-    let seriesArray = Object.values(seriesPeliculasOriginal);
+function sortSeriesByTitle() {
+    let seriesArray = Object.values(misSeries);
     if (seriesArray.length > 1) {
         seriesArray.sort((a, b) => {
             return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
         });
-        seriesPeliculasOriginal = {};
-        seriesArray.forEach(item => seriesPeliculasOriginal[item.id] = item);
+        misSeries = {};
+        seriesArray.forEach(tarea => misSeries[tarea.id] = tarea);
 
     } else
         lastPosition = 1;
+}
 
+/**
+ * Ordena las peliculas por orden albético
+ */
+function sortPeliculasByTitle() {
+    let seriesArray = Object.values(misPeliculas);
+    if (seriesArray.length > 1) {
+        seriesArray.sort((a, b) => {
+            return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+        });
+        misPeliculas = {};
+        seriesArray.forEach(tarea => misPeliculas[tarea.id] = tarea);
+
+    } else
+        lastPosition = 1;
 }
 
 /**
@@ -1063,5 +1077,7 @@ function recortaSinopsis(sinopsis) {
     const limite = 150;
     if (sinopsis.length > limite) {
         return sinopsis.slice(0,limite) + '...';
+    } else {
+        return sinopsis;
     }
 }
