@@ -1,26 +1,30 @@
 /*** VARIABLES GLOBALES ***/
+let tipoCollection = 'series' // Define la colección: series o películas
 let misSeries = {}; // Series que se mostrarán (tras filtro)
-let misSeriesOrginal = {}; // Copia con las series de la BBDD
+let misPeliculas = {}; // Películas que se mostrarán (tras filtro)
+let misSeriesOriginal = {}; // Copia con las series de la BBDD
+let misPeliculasOriginal = {}; // Copia con las películas de la BBDD
 let lastPosition = 0; // Última posición ocupada
 let user = {}; // Objeto con el usuario usuario de FB
 let allPlatforms = []; // Lista con todas las plataformas (para filtrar)
-let filterActive = false; // Marca si se está filtrando
 
 
 /*** SELECTORES ***/
-const listaSeries = document.getElementById('lista-series'),
-    template = document.getElementById('template').content,
+const listaSeriesPeliculas = document.getElementById('lista-elementos'),
+    templateSerie = document.getElementById('template-serie').content,
+    templatePelicula = document.getElementById('template-pelicula').content,
     fragment = document.createDocumentFragment(),
     loginModalButton = document.getElementById('login-modal-button'),
     registerModalButton = document.getElementById('register-modal-button'),
     loginButton = document.getElementById('login-button'),
     registerButton = document.getElementById('register-button'),
     logoutButton = document.getElementById('logout-button'),
-    addSerieModalButton = document.getElementById('add-serie-modal-button'),
-    // filterButton = document.getElementById('filter-button'),
+    addElementModalButton = document.getElementById('add-element-modal-button'),
     buscador = document.getElementById('buscador'),
     filterBox = document.getElementById('filter-box'),
     resetPassButton = document.getElementById('reset-pass-button'),
+
+    // Añadir-Editar Serie
     addSerieForm = document.getElementById('add-serie-form'),
     serieTitle = document.getElementById('serie-title'),
     serieAvailableChapter = document.getElementById('serie-available-chapter'),
@@ -31,10 +35,26 @@ const listaSeries = document.getElementById('lista-series'),
     serieArchived = document.getElementById('serie-archived'),
     serieCaratula = document.getElementById('serie-caratula'),
     addSerieButton = document.getElementById('add-serie-button'),
+
+    // Añadir-Editar Película
+    addPeliculaForm = document.getElementById('add-pelicula-form'),
+    peliculaTitle = document.getElementById('pelicula-title'),
+    peliculaAnho = document.getElementById('pelicula-anho'),
+    peliculaGenero = document.getElementById('pelicula-genero'),
+    peliculaSinopsis = document.getElementById('pelicula-sinopsis'),
+    peliculaPlatform = document.getElementById('pelicula-platform'),
+    peliculaPlatformColor = document.getElementById('pelicula-platform-color'),
+    peliculaArchived = document.getElementById('pelicula-archived'),
+    peliculaViewed = document.getElementById('pelicula-viewed'),
+    peliculaCaratula = document.getElementById('pelicula-caratula'),
+    addPeliculaButton = document.getElementById('add-pelicula-button'),
+
+    // Filtro
     filterArchived = document.getElementById('filter-archived'),
     filterAvailable = document.getElementById('filter-available'),
     filterPlatform = document.getElementById('filter-platform'),
-    filterLimpiarBoton = document.getElementById('limpiar-buscador');
+    filterLimpiarBoton = document.getElementById('limpiar-buscador'),
+    filterCollection = document.getElementById('filter-tipo-collection');
 
 
 
@@ -43,43 +63,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // Incializamos Firebase
     initFirebase();
 
-    getAllSeries();
+    getAllSeriesPeliculas();
 });
 
 loginButton.addEventListener('click', singInFB, false);
 registerButton.addEventListener('click', signUpFB, false);
 logoutButton.addEventListener('click', signOutFB, false);
 resetPassButton.addEventListener('click', sendPasswordReset, false);
-addSerieModalButton.addEventListener('click', showModalSerie, false);
+addElementModalButton.addEventListener('click', showModalElement, false);
 addSerieButton.addEventListener('click', addSerie, false);
-seriePlatformColor.addEventListener('change', updateSeriePlatformColor, false);
-// filterButton.addEventListener('click', changeFilterButtonIcon, false);
+addPeliculaButton.addEventListener('click', addPelicula, false);
+seriePlatformColor.addEventListener('change', updateElementPlatformColor, false);
+peliculaPlatformColor.addEventListener('change', updateElementPlatformColor, false);
 filterArchived.addEventListener('change', () => runFilter(false), false);
 filterAvailable.addEventListener('change', () => runFilter(false), false);
 buscador.addEventListener('keyup', () => runFilter(false), false);
 buscador.addEventListener('search', () => runFilter(true), false);
 filterLimpiarBoton.addEventListener('click', clearFilter, false);
+filterCollection.addEventListener('change', changeCollection, false);
 
 
 
 /*** FUNCIONES PRINCIPALES ***/
 /**
- * Carga la lista de series de FB
+ * Carga la lista de series y películas de FB
  */
-function getAllSeries() {
+function getAllSeriesPeliculas() {
     if (localStorage.getItem('user')) {
         // Tenemos usuario logueado => recuperamos series de FB
         user = JSON.parse(localStorage.getItem('user'));
         showCloseButton(true);
         showLoader(true);
-        getFBSeries(() => runFilter(false));
+        getFBSeriesPeliculas(() => runFilter(false));
 
     } else {
-        // No tenemos usuario logueado => Recuperamos las series guardas en localStorage
+        // No tenemos usuario logueado
         showCloseButton(false);
     }
 }
 
+
+/**** 1 - SERIES ****/
 /**
  * Muestra modal para crear o actualizar serie
  * @param {Event} e 
@@ -87,7 +111,7 @@ function getAllSeries() {
 function showModalSerie(e) {
     e.preventDefault;
 
-    const edit = !(e.target.id === 'add-serie-modal-button'),
+    const edit = !(e.target.id === 'add-element-modal-button'),
         modal = document.getElementById('add-serie-modal');
 
     if (edit) {
@@ -103,7 +127,7 @@ function showModalSerie(e) {
         serieArchived.checked = serie.archived;
         addSerieButton.dataset.id = serie.id;
 
-        updateSeriePlatformColor();
+        updateElementPlatformColor();
 
         // Añadimos botón para borrar la serie si no existe
         let removeSerieButton = document.getElementById('remove-serie-button');
@@ -125,7 +149,7 @@ function showModalSerie(e) {
         addSerieForm.reset();
         delete addSerieButton.dataset.id;
 
-        updateSeriePlatformColor();
+        updateElementPlatformColor();
 
         // Si está presente el botón borrar serie lo quitamos
         const removeSerieButton = document.getElementById('remove-serie-button');
@@ -154,7 +178,7 @@ function addSerie(e) {
     }
 
     // Comprobamos si tiene carátula su tamaño
-    if (serieCaratula.files[0] !== undefined && serieCaratula.files[0].size > 1024*1024) {
+    if (serieCaratula.files[0] !== undefined && serieCaratula.files[0].size > 1024 * 1024) {
         serieCaratula.classList.add('is-invalid');
         addSerieForm.classList.add('was-validated');
         return;
@@ -200,7 +224,7 @@ function addSerie(e) {
         // Guardamos la serie y la carátula => con promesa
         saveSerie(serie, update)
             .then(() => {
-                misSeriesOrginal[serie.id] = serie;
+                misSeriesOriginal[serie.id] = serie;
                 fillAllPlatforms();
                 runFilter(false);
 
@@ -209,7 +233,7 @@ function addSerie(e) {
             });
     } else {
         if (saveSerie(serie, update)) {
-            misSeriesOrginal[serie.id] = serie;
+            misSeriesOriginal[serie.id] = serie;
             fillAllPlatforms();
             runFilter(false);
         }
@@ -232,7 +256,7 @@ function deleteSerie(e) {
         addSerieForm.reset();
         $('#add-serie-modal').modal('hide');
         delete misSeries[e.target.dataset.id];
-        delete misSeriesOrginal[e.target.dataset.id];
+        delete misSeriesOriginal[e.target.dataset.id];
         showSeries();
     }
 }
@@ -243,7 +267,7 @@ function deleteSerie(e) {
 function showSeries() {
 
     // Limpiamos la lista de series
-    listaSeries.innerHTML = '';
+    listaSeriesPeliculas.innerHTML = '';
 
     // Ocultamos el loader
     showLoader(false);
@@ -253,20 +277,20 @@ function showSeries() {
         const divNoSeries = document.createElement('div');
         divNoSeries.classList.add('alert', 'alert-secondary', 'text-center');
         const divNoSeriesText = document.createElement('p');
-        divNoSeriesText.innerHTML = filterActive ? 'No hay series que coincidan con el filtro 😢.' : 'No hay series guardadas 😢.';
-        const buttonClone = addSerieModalButton.cloneNode(true);
+        divNoSeriesText.innerHTML = Object.entries(misSeriesOriginal).length > 0 ? `No hay ${tipoCollection.toLowerCase()} que coincidan con el filtro.` : `No hay ${tipoCollection.toLowerCase()} guardadas 😢.`;
+        const buttonClone = addElementModalButton.cloneNode(true);
         buttonClone.addEventListener('click', showModalSerie, false);
         divNoSeries.appendChild(divNoSeriesText);
         divNoSeries.appendChild(buttonClone);
-        listaSeries.appendChild(divNoSeries);
+        listaSeriesPeliculas.appendChild(divNoSeries);
         return;
     }
 
     // Ordenamos las series por orden alfabético
-    sortSeriesByTitle();
+    sortElementosByTitle();
 
     Object.values(misSeries).forEach(serie => {
-        const clone = template.cloneNode(true);
+        const clone = templateSerie.cloneNode(true);
 
         // Comprobamos si la posición es mayor que la última guardada
         checkLastPosition(serie.position);
@@ -297,9 +321,6 @@ function showSeries() {
         }
         archiveSerieButton.dataset.id = serie.id;
         archiveSerieButton.addEventListener('click', event => { archiveSerie(event); }, false);
-        if (serie.archived) {
-
-        }
 
         // Actualizamos el botón de editar la serie
         const editSerieButton = clone.querySelector('.edit-serie');
@@ -321,13 +342,13 @@ function showSeries() {
         fragment.appendChild(clone);
     });
 
-    listaSeries.appendChild(fragment);
+    listaSeriesPeliculas.appendChild(fragment);
 
 
     // Hacemos la lista de series ordenable utilizando la función de Bootstrap
-    // Sortable.create(listaSeries, {
+    // Sortable.create(listaSeriesPeliculas, {
     //     onEnd: e => {
-    //         listaSeries.querySelectorAll('li').forEach((el, index) => {
+    //         listaSeriesPeliculas.querySelectorAll('li').forEach((el, index) => {
     //             series[el.dataset.id].position = index + 1;
     //         });
 
@@ -348,7 +369,7 @@ function showSeries() {
 function updateChapter(e, add) {
     let actualiza = false;
     const idSerie = e.target.dataset.id;
-    const serie = cloneSerie(misSeries[idSerie]);
+    const serie = cloneElement(misSeries[idSerie], 'serie');
     let lastChapter = parseInt(serie.lastChapter);
     let availableChapter = parseInt(serie.availableChapter);
     const changeLastChapter = e.target.parentElement.parentElement.parentElement.classList.contains('serie-last-chapter');
@@ -372,7 +393,7 @@ function updateChapter(e, add) {
         if (updateSerie(serie)) {
             // Actualización correcta => refrescamos valores
             misSeries[serie.id] = serie;
-            misSeriesOrginal[serie.id] = serie;
+            misSeriesOriginal[serie.id] = serie;
             if (changeLastChapter) {
                 e.target.parentElement.parentElement.firstElementChild.textContent = serie.lastChapter;
             } else {
@@ -398,33 +419,281 @@ function updateChapter(e, add) {
 }
 
 /**
- * Cambia el icono del botón de mostrar los filtros
- */
-// function changeFilterButtonIcon() {
-//     const buttonIcon = filterButton.getElementsByTagName('i')[0];
-//     buttonIcon.classList.toggle('fa-minus');
-//     buttonIcon.classList.toggle('fa-plus');
-// }
-
-/**
  * Archiva o desarchiva (según si ya lo estuviera o no) una serie con botón directo
  * @param {Event} e 
  */
 function archiveSerie(e) {
     const idSerie = e.target.dataset.id;
-    const serie = cloneSerie(misSeries[idSerie]);
+    const serie = cloneElement(misSeries[idSerie], 'serie');
 
     serie.archived = !serie.archived;
     if (updateSerie(serie)) {
         // Actualización correcta => refrescamos valores
         misSeries[serie.id] = serie;
-        misSeriesOrginal[serie.id] = serie;
+        misSeriesOriginal[serie.id] = serie;
     } else {
         myAlert('Atención', 'Se ha producido un error al actualizar la serie.');
     }
 
     runFilter(false);
 }
+
+
+
+/**** 2 - PELÍCULAS ****/
+/**
+ * Pintar las series que esten guardadas
+ */
+function showPeliculas() {
+
+    // Limpiamos la lista de series
+    listaSeriesPeliculas.innerHTML = '';
+
+    // Ocultamos el loader
+    showLoader(false);
+
+    // Comprobamos si la lista de objetos está vacía
+    if (Object.values(misPeliculas).length === 0) {
+        const divNoSeries = document.createElement('div');
+        divNoSeries.classList.add('alert', 'alert-secondary', 'text-center');
+        const divNoSeriesText = document.createElement('p');
+        divNoSeriesText.innerHTML = Object.entries(misPeliculasOriginal).length > 0 ? `No hay ${tipoCollection.toLowerCase()} que coincidan con el filtro.` : `No hay ${tipoCollection.toLowerCase()} guardadas 😢.`;
+        const buttonClone = addElementModalButton.cloneNode(true);
+        buttonClone.addEventListener('click', showModalPelicula, false);
+        divNoSeries.appendChild(divNoSeriesText);
+        divNoSeries.appendChild(buttonClone);
+        listaSeriesPeliculas.appendChild(divNoSeries);
+        return;
+    }
+
+    // Ordenamos las series por orden alfabético
+    sortElementosByTitle();
+
+    Object.values(misPeliculas).forEach(pelicula => {
+        const clone = templatePelicula.cloneNode(true);
+
+        // Comprobamos si la posición es mayor que la última guardada
+        checkLastPosition(pelicula.position);
+
+        // Si el capítulo disponible es igual al visto marcamos la serie como vista
+        if (pelicula.viewed)
+            clone.querySelector('li').classList.add('serie-viewed');
+
+        // Recuperamos los valores
+        clone.querySelector('.pelicula-title').textContent = `${pelicula.title} [${pelicula.anho}]`;
+        clone.querySelector('.pelicula-genero').textContent = pelicula.genero;
+        clone.querySelector('.pelicula-platform').innerHTML = pelicula.platform;
+        clone.querySelector('.pelicula-platform').style.color = pelicula.platformColor;
+        clone.querySelector('.pelicula-sinopsis').textContent = recortaSinopsis(pelicula.sinopsis);
+
+        if (pelicula.caratula !== undefined) {
+            const caratula = clone.querySelector('.pelicula-caratula');
+            caratula.src = pelicula.caratula.url;
+            caratula.classList.remove('default-image');
+            caratula.addEventListener("click", () => showCoverModal(pelicula), false);
+        }
+
+        // Botón de archivar pelicula
+        const archivePeliculaButton = clone.querySelector('.archive-pelicula');
+        if (pelicula.archived) {
+            archivePeliculaButton.classList.remove('fa-archive');
+            archivePeliculaButton.classList.add('fa-box-open');
+        }
+        archivePeliculaButton.dataset.id = pelicula.id;
+        archivePeliculaButton.addEventListener('click', event => { archivePelicula(event); }, false);
+
+        // Actualizamos el botón de editar la pelicula
+        const editPeliculaButton = clone.querySelector('.edit-pelicula');
+        editPeliculaButton.dataset.id = pelicula.id;
+        editPeliculaButton.addEventListener("click", showModalPelicula, false);
+
+        fragment.appendChild(clone);
+    });
+
+    listaSeriesPeliculas.appendChild(fragment);
+}
+
+/**
+ * Muestra modal para crear o actualizar pelicula
+ * @param {Event} e 
+ */
+function showModalPelicula(e) {
+    e.preventDefault;
+
+    const edit = !(e.target.id === 'add-element-modal-button'),
+        modal = document.getElementById('add-pelicula-modal');
+
+    if (edit) {
+        // Editando pelicula
+        modal.querySelector('.modal-title').textContent = 'Editar pelicula';
+        const pelicula = misPeliculas[e.target.dataset.id];
+        peliculaTitle.value = pelicula.title;
+        peliculaAnho.value = pelicula.anho;
+        peliculaGenero.value = pelicula.genero ? pelicula.genero : '';
+        peliculaSinopsis.value = pelicula.sinopsis;
+        peliculaPlatform.value = pelicula.platform;
+        peliculaPlatformColor.value = pelicula.platformColor;
+        peliculaArchived.checked = pelicula.archived;
+        peliculaViewed.checked = pelicula.viewed;
+        addPeliculaButton.dataset.id = pelicula.id;
+
+        updateElementPlatformColor();
+
+        // Añadimos botón para borrar la pelicula si no existe
+        let removePeliculaButton = document.getElementById('remove-pelicula-button');
+        if (typeof(removePeliculaButton) === 'undefined' || removePeliculaButton === null) {
+            // Lo creamos
+            removePeliculaButton = document.createElement('button');
+            removePeliculaButton.id = 'remove-pelicula-button';
+            removePeliculaButton.classList.add('btn', 'btn-danger');
+            removePeliculaButton.textContent = 'Eliminar pelicula';
+            const modalFooter = modal.querySelector('.modal-footer');
+            modalFooter.insertBefore(removePeliculaButton, modalFooter.lastElementChild);
+        }
+        removePeliculaButton.dataset.id = pelicula.id;
+        removePeliculaButton.addEventListener('click', deletePelicula, false);
+
+    } else {
+        // Creando nueva pelicula
+        modal.querySelector('.modal-title').textContent = 'Nueva pelicula';
+        addPeliculaForm.reset();
+        delete addPeliculaButton.dataset.id;
+
+        updateElementPlatformColor();
+
+        // Si está presente el botón borrar pelicula lo quitamos
+        const removePeliculaButton = document.getElementById('remove-pelicula-button');
+        if (typeof(removePeliculaButton) != 'undefined' && removePeliculaButton != null)
+            removePeliculaButton.remove();
+    }
+
+    // Mostramos las modal con jQuery
+    $('#add-pelicula-modal').modal('show');
+
+}
+
+/**
+ * Guardar la pelicula
+ * @param {Event} e 
+ */
+function addPelicula(e) {
+    e.preventDefault();
+    let pelicula = {};
+    let update = false;
+
+    // Comprobamos si estamos logueados
+    if (!localStorage.getItem('user')) {
+        showCloseButton(false);
+        return;
+    }
+
+    // Comprobamos si tiene carátula su tamaño
+    if (peliculaCaratula.files[0] !== undefined && peliculaCaratula.files[0].size > 1024 * 1024) {
+        peliculaCaratula.classList.add('is-invalid');
+        addPeliculaForm.classList.add('was-validated');
+        return;
+    } else {
+        peliculaCaratula.classList.remove('is-invalid');
+    }
+
+    // Validamos el formulario
+    if (addPeliculaForm.checkValidity() === false) {
+        addPeliculaForm.classList.add('was-validated');
+        return;
+    }
+
+    if (e.target.dataset.id === undefined || e.target.dataset.id === 0) {
+        // Creamos nueva pelicula
+        update = false;
+        pelicula.id = Date.now();
+        pelicula.title = peliculaTitle.value;
+        pelicula.anho = peliculaAnho.value;
+        pelicula.genero = peliculaGenero.value;
+        pelicula.sinopsis = peliculaSinopsis.value;
+        pelicula.platform = peliculaPlatform.value;
+        pelicula.platformColor = peliculaPlatformColor.value;
+        pelicula.archived = peliculaArchived.checked;
+        pelicula.viewed = peliculaViewed.checked;
+        pelicula.position = lastPosition + 1;
+        pelicula.file = peliculaCaratula.files[0];
+
+    } else {
+        // Actualizamos pelicula
+        update = true;
+        pelicula = misPeliculas[e.target.dataset.id];
+        pelicula.title = peliculaTitle.value;
+        pelicula.anho = peliculaAnho.value;
+        pelicula.genero = peliculaGenero.value;
+        pelicula.sinopsis = peliculaSinopsis.value;
+        pelicula.platform = peliculaPlatform.value;
+        pelicula.platformColor = peliculaPlatformColor.value;
+        pelicula.archived = peliculaArchived.checked;
+        pelicula.viewed = peliculaViewed.checked;
+        pelicula.file = peliculaCaratula.files[0];
+    }
+
+    if (pelicula.file !== undefined) {
+        // Guardamos la pelicula y la carátula => con promesa
+        savePelicula(pelicula, update)
+            .then(() => {
+                misPeliculasOriginal[pelicula.id] = pelicula;
+                fillAllPlatforms();
+                runFilter(false);
+
+            }).catch(() => {
+                myAlert('Atención', `Se ha producido un error al ${update ? 'actualizar' : 'crear'} la pelicula.`);
+            });
+    } else {
+        if (savePelicula(pelicula, update)) {
+            misPeliculasOriginal[pelicula.id] = pelicula;
+            fillAllPlatforms();
+            runFilter(false);
+        }
+    }
+
+    // Cerramos la modal y la limpiamos
+    addPeliculaForm.reset();
+    $('#add-pelicula-modal').modal('hide');
+
+}
+
+/**
+ * Elimina una pelicula
+ * @param {Event} e 
+ */
+function deletePelicula(e) {
+    const pelicula = misPeliculas[e.target.dataset.id];
+    if (removePelicula(pelicula)) {
+        // Cerramos la modal y la limpiamos
+        addPeliculaForm.reset();
+        $('#add-pelicula-modal').modal('hide');
+        delete misPeliculas[e.target.dataset.id];
+        delete misPeliculasOriginal[e.target.dataset.id];
+        showPeliculas();
+    }
+}
+
+/**
+ * Archiva o desarchiva (según si ya lo estuviera o no) una pelicula con botón directo
+ * @param {Event} e 
+ */
+function archivePelicula(e) {
+    const idPelicula = e.target.dataset.id;
+    const pelicula = cloneElement(misPeliculas[idPelicula], 'pelicula');
+
+    pelicula.archived = !pelicula.archived;
+    if (updatePelicula(pelicula)) {
+        // Actualización correcta => refrescamos valores
+        misPeliculas[pelicula.id] = pelicula;
+        misPeliculasOriginal[pelicula.id] = pelicula;
+    } else {
+        myAlert('Atención', 'Se ha producido un error al actualizar la pelicula.');
+    }
+
+    runFilter(false);
+}
+
+
 
 /*** FUNCIONES AUXILIARES ***/
 /**
@@ -436,7 +705,7 @@ function showCloseButton(show) {
         // Mostramos el botón de salir y ocultamos los de entrar y registrarse
         loginModalButton.classList.replace('active', 'hidden');
         registerModalButton.classList.replace('active', 'hidden');
-        addSerieModalButton.classList.replace('hidden', 'active');
+        addElementModalButton.classList.replace('hidden', 'active');
         logoutButton.classList.replace('hidden', 'active');
         filterBox.classList.replace('hidden', 'active');
 
@@ -444,12 +713,12 @@ function showCloseButton(show) {
         // Ocultamos el botón de salir y mostramos los de entrar y registrarse
         // y limpiamos la lista
         misSeries = {};
-        misSeriesOrginal = {};
+        misSeriesOriginal = {};
         allPlatforms = [];
         logoutButton.classList.replace('active', 'hidden');
-        addSerieModalButton.classList.replace('active', 'hidden');
-        listaSeries.classList.replace('active', 'hidden');
-        listaSeries.innerHTML = '';
+        addElementModalButton.classList.replace('active', 'hidden');
+        listaSeriesPeliculas.classList.replace('active', 'hidden');
+        listaSeriesPeliculas.innerHTML = '';
         loginModalButton.classList.replace('hidden', 'active');
         registerModalButton.classList.replace('hidden', 'active');
         filterBox.classList.replace('active', 'hidden');
@@ -510,7 +779,7 @@ function showLoader(show) {
         const loader = document.createElement('div');
         loader.id = 'loader';
         loader.classList.add('center');
-        listaSeries.appendChild(loader);
+        listaSeriesPeliculas.appendChild(loader);
     } else if (document.getElementById('loader')) {
         document.getElementById('loader').remove();
     }
@@ -519,14 +788,15 @@ function showLoader(show) {
 /**
  * Ordena las series por orden albético modificando su posición
  */
-function sortSeriesByTitle() {
-    let seriesArray = Object.values(misSeries);
+function sortElementosByTitle() {
+    let seriesPeliculasOriginal = tipoCollection === 'series' ? misSeriesOriginal : misPeliculasOriginal;
+    let seriesArray = Object.values(seriesPeliculasOriginal);
     if (seriesArray.length > 1) {
         seriesArray.sort((a, b) => {
             return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
         });
-        misSeries = {};
-        seriesArray.forEach(tarea => misSeries[tarea.id] = tarea);
+        seriesPeliculasOriginal = {};
+        seriesArray.forEach(item => seriesPeliculasOriginal[item.id] = item);
 
     } else
         lastPosition = 1;
@@ -552,26 +822,34 @@ function sortSeriesByPosition() {
 }
 
 /**
- * Clona un objeto serie
+ * Clona un objeto serie/pelicula
  * 
- * @param {Object} serie Objeto serie
+ * @param {Object} element Objeto serie/pelicula
  * @returns 
  */
-function cloneSerie(serie) {
-    const newSerie = {};
-    newSerie.id = serie.id;
-    newSerie.title = serie.title;
-    newSerie.lastChapter = serie.lastChapter;
-    newSerie.availableChapter = serie.availableChapter;
-    newSerie.platform = serie.platform;
-    newSerie.platformColor = serie.platformColor;
-    newSerie.season = serie.season;
-    newSerie.position = serie.position;
-    newSerie.modified = serie.modified;
-    newSerie.archived = serie.archived;
-    newSerie.caratula = serie.caratula;
+function cloneElement(element, tipo) {
+    const newElement = {};
+    newElement.id = element.id;
+    newElement.title = element.title;
+    newElement.platform = element.platform;
+    newElement.platformColor = element.platformColor;
+    newElement.position = element.position;
+    newElement.modified = element.modified;
+    newElement.archived = element.archived;
+    newElement.caratula = element.caratula;
 
-    return newSerie;
+    if (tipo === 'serie') {
+        newElement.lastChapter = element.lastChapter;
+        newElement.availableChapter = element.availableChapter;
+        newElement.season = element.season;
+    } else {
+        newElement.anho = element.anho;
+        newElement.sinopsis = element.sinopsis;
+        newElement.viewed = element.viewed;
+        newElement.genero = element.genero;
+    }
+
+    return newElement;
 }
 
 /**
@@ -584,17 +862,24 @@ function checkLastPosition(newPosition) {
         lastPosition = newPosition;
 }
 
-function updateSeriePlatformColor() {
-    seriePlatformColor.style.color = seriePlatformColor.value;
+function updateElementPlatformColor() {
+    if (tipoCollection === 'series') {
+        seriePlatformColor.style.color = seriePlatformColor.value;
+    } else {
+        peliculaPlatformColor.style.color = peliculaPlatformColor.value;
+    }
 }
 
 /**
  * Recupera las plataformas registradas
  */
 function fillAllPlatforms() {
-    const allPlatformsFull = Object.values(misSeriesOrginal).map(s => {
-        if (s.platform !== undefined && s.platform !== '') {
-            return { 'plataforma': s.platform, 'color': s.platformColor };
+
+    let seriesPeliculasOriginal = tipoCollection === 'series' ? misSeriesOriginal : misPeliculasOriginal;
+
+    const allPlatformsFull = Object.values(seriesPeliculasOriginal).map(o => {
+        if (o.platform !== undefined && o.platform !== '') {
+            return { 'plataforma': o.platform, 'color': o.platformColor };
         }
     });
 
@@ -642,6 +927,29 @@ function fillSelectPlatformFilter() {
 }
 
 /**
+ * Realiza las operaciones desencadenadas al cambiar la coleción (series/películas)
+ */
+function changeCollection() {
+    tipoCollection = filterCollection.options[filterCollection.selectedIndex].value;
+    updateLabelAddElementModalButton();
+
+    // Cambiamos el texto del filtro
+    filterAvailable.nextElementSibling.textContent = tipoCollection === 'series' ? 'Caps disponibles' : 'No vistas';
+
+    // Recuperamos las plataformas según la colección
+    fillAllPlatforms();
+
+    runFilter(false);
+}
+
+/**
+ * Actualiza el nombre el botón según la colección (series/películas) seleccionada
+ */
+function updateLabelAddElementModalButton() {
+    addElementModalButton.textContent = `Añadir ${tipoCollection.toLowerCase().slice(0, -1)}`;
+}
+
+/**
  * Filtra las series según si están archivadas, plataforma, con caps disponibles y buscador
  * 
  * @param borraBuscador true => viene de picar en borrar el input del buscador
@@ -652,18 +960,19 @@ function runFilter(borraBuscador = false) {
     const selectedAvailable = filterAvailable.checked;
     const textoBuscado = borraBuscador ? "" : buscador.value.toLowerCase();
 
-
+    let seriesPeliculasOriginal = tipoCollection === 'series' ? misSeriesOriginal : misPeliculasOriginal;
     misSeries = {};
-    Object.values(misSeriesOrginal).forEach(serie => {
-        if (checkFilterArchived(serie, selectedArchived) &&
-            checkFilterPlataform(serie, selectedPlatform) &&
-            checkFilterAvailable(serie, selectedAvailable) &&
-            checkFilterTextoBuscado(serie, textoBuscado)) {
-            misSeries[serie.id] = serie;
+    misPeliculas = {};
+    Object.values(seriesPeliculasOriginal).forEach(item => {
+        if (checkFilterArchived(item, selectedArchived) &&
+            checkFilterPlataform(item, selectedPlatform) &&
+            checkFilterAvailable(item, selectedAvailable) &&
+            checkFilterTextoBuscado(item, textoBuscado)) {
+            tipoCollection === 'series' ? misSeries[item.id] = item : misPeliculas[item.id] = item;
         }
     });
 
-    showSeries();
+    tipoCollection === 'series' ? showSeries() : showPeliculas();
 }
 
 function checkFilterArchived(serie, selectedArchived) {
@@ -675,11 +984,19 @@ function checkFilterPlataform(serie, selectedPlatform) {
     return (selectedPlatform == 0 || serie.platform === selectedPlatform);
 }
 
-function checkFilterAvailable(serie, selectedAvailable) {
-    const lastChapter = parseInt(serie.lastChapter);
-    const availableChapter = parseInt(serie.availableChapter);
+function checkFilterAvailable(elemento, selectedAvailable) {
+    let result = false;
 
-    return selectedAvailable ? (availableChapter - lastChapter > 0) : true;
+    if (tipoCollection === 'series') {
+        const lastChapter = parseInt(elemento.lastChapter);
+        const availableChapter = parseInt(elemento.availableChapter);
+        result = availableChapter - lastChapter > 0;
+    } else {
+        elemento.viewed = elemento.viewed ? elemento.viewed : false;
+        result = !elemento.viewed;
+    }
+
+    return selectedAvailable ? result : true;
 }
 
 function checkFilterTextoBuscado(serie, textoBuscado) {
@@ -710,12 +1027,41 @@ function clearFilter() {
     runFilter(false);
 }
 
-function  showCoverModal(serie) {
+function showCoverModal(elemento) {
     modal = document.getElementById('cover-modal');
 
-    modal.querySelector('.modal-title').textContent = `${serie.title} [Temporada ${serie.season}]`
-    modal.querySelector('#cover-image').src = serie.caratula.url;
+    modal.querySelector('.modal-title').textContent = `${elemento.title} [${tipoCollection === 'series' ? `Temporada ${elemento.season}` : elemento.anho}]`;
+    modal.querySelector('#cover-image').src = elemento.caratula.url;
+
+    // Si es película mostramos la sinopsis completa
+    if (tipoCollection === 'películas') {
+        modal.querySelector('.cover-sinopsis').textContent = elemento.sinopsis;
+    }
 
     // Mostramos las modal con jQuery
     $('#cover-modal').modal('show');
+}
+
+/**
+ * Método llamado al picar en Añadir Serie/Película => según lo que esté seleccionado mostrará una modal u otra
+ */
+function showModalElement(e) {
+    if (tipoCollection === 'series') {
+        showModalSerie(e);
+    } else {
+        showModalPelicula(e);
+    }
+}
+
+/**
+ * Recorta la sinopsis a un máx de 150 caracteres
+ * 
+ * @param {String} sinopsis 
+ * @returns 
+ */
+function recortaSinopsis(sinopsis) {
+    const limite = 150;
+    if (sinopsis.length > limite) {
+        return sinopsis.slice(0,limite) + '...';
+    }
 }

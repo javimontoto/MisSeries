@@ -166,7 +166,59 @@ function sendPasswordReset() {
 }
 
 
-/*** MÉTODOS FB */
+/*** MÉTODOS FIREBASE ***/
+/**
+ * Recupera las series y películas almacenadas en FB
+ * @param {function} callback Función que se ejutará después de realizar la petición a FB si todo va bien
+ */
+function getFBSeriesPeliculas(callback) {
+    let errorSeries = false;
+    const db = firebase.database().ref();
+    db.child('series').child(user.uid).get()
+        .then((series) => {
+            if (series.exists()) {
+                misSeries = series.val();
+                misSeriesOriginal = series.val();
+                fillAllPlatforms();
+
+            } else {
+                misSeries = {};
+                misSeriesOriginal = {};
+                allPlatforms.series = [];
+                lastPosition = 0;
+            }
+
+            // callback();
+
+        }).catch((error) => {
+            errorSeries = true;
+            myAlert('Atención', error.message);
+        });
+
+    if (!errorSeries) {
+        db.child('peliculas').child(user.uid).get()
+            .then((peliculas) => {
+                if (peliculas.exists()) {
+                    misPeliculas = peliculas.val();
+                    misPeliculasOriginal = peliculas.val();
+
+                } else {
+                    misPeliculas = {};
+                    misPeliculasOriginal = {};
+                    allPlatforms.peliculas = [];
+                    lastPosition = 0;
+                }
+
+                callback();
+
+            }).catch((error) => {
+                myAlert('Atención', error.message);
+            });
+    }
+}
+
+
+/**** 1- SERIES ****/
 /**
  * Guarda la serie 
  * @param {Object} serie Objeto de tipo serie
@@ -176,7 +228,7 @@ function saveSerie(serie, update = false) {
 
     // Si tiene imagen la guardamos primero para obtener la referencia
     if (serie.file !== undefined) {
-        return update ? saveCover(serie, updateSerie) : saveCover(serie, createSerie);
+        return update ? saveCover(serie, 'series', updateSerie) : saveCover(serie, 'series', createSerie);
     } else {
         return update ? updateSerie(serie) : createSerie(serie);
     }
@@ -235,34 +287,6 @@ function updateSerie(serie) {
 }
 
 /**
- * Recupera las series almacenadas en FB
- * @param {function} callback Función que se ejutará después de realizar la petición a FB si todo va bien
- */
-function getFBSeries(callback) {
-    const db = firebase.database().ref();
-    db.child('series').child(user.uid).get()
-        .then((series) => {
-            if (series.exists()) {
-                misSeries = series.val();
-                misSeriesOrginal = series.val();
-                fillAllPlatforms();
-
-            } else {
-                misSeries = {};
-                misSeriesOrginal = {};
-                allPlatforms = [];
-                lastPosition = 0;
-            }
-
-            callback();
-
-        }).catch((error) => {
-            myAlert('Atención', error.message);
-        });
-
-}
-
-/**
  * Elimina una serie y, si la tiene su carátula
  * 
  * @param {Object} serie Objeto de tipo serie
@@ -271,7 +295,7 @@ function removeSerie(serie) {
 
     // Si tiene carátula la borramos
     if (serie.caratula !== undefined) {
-        return deleteCover(serie, delSerie);
+        return deleteCover(serie, 'series');
     } else {
         return delSerie(serie);
     }
@@ -291,34 +315,141 @@ function delSerie(serie) {
     return true;
 }
 
+
+
+/**** 1- PELÍCULAS ****/
 /**
- * Guarda la carátula de la serie
+ * Guarda la pelicula 
+ * @param {Object} pelicula Objeto de tipo pelicula
+ * @param {boolean} update Indica si actualiza (true) o crea (false)
+ */
+function savePelicula(pelicula, update = false) {
+
+    // Si tiene imagen la guardamos primero para obtener la referencia
+    if (pelicula.file !== undefined) {
+        return update ? saveCover(pelicula, 'peliculas', updatePelicula) : saveCover(pelicula, 'peliculas', createPelicula);
+    } else {
+        return update ? updatePelicula(pelicula) : createPelicula(pelicula);
+    }
+}
+
+/**
+ * Crea la pelicula en FB
+ * @param {Object} pelicula Objeto de tipo pelicula
+ */
+function createPelicula(pelicula) {
+    firebase.database().ref('peliculas/' + user.uid + '/' + pelicula.id).set({
+            id: pelicula.id,
+            title: pelicula.title,
+            anho: pelicula.anho,
+            genero: pelicula.genero,
+            sinopsis: pelicula.sinopsis,
+            platform: pelicula.platform,
+            platformColor: pelicula.platformColor,
+            archived: pelicula.archived,
+            viewed: pelicula.viewed,
+            position: pelicula.position,
+            modified: Date.now(),
+            caratula: pelicula.caratula !== undefined ? { url: pelicula.caratula.url, name: pelicula.caratula.name } : {}
+        })
+        .catch((error) => {
+            myAlert('Atención', error.message);
+            return false;
+        });
+
+    return true;
+}
+
+/**
+ * Actualiza una pelicula
+ * @param {Object} pelicula Objeto de tipo pelicula
+ */
+function updatePelicula(pelicula) {
+    let nuevaPelicula = {
+        id: pelicula.id,
+        title: pelicula.title,
+        anho: pelicula.anho,
+        genero: pelicula.genero,
+        sinopsis: pelicula.sinopsis,
+        position: pelicula.position,
+        platform: pelicula.platform,
+        platformColor: pelicula.platformColor,
+        archived: (pelicula.archived !== undefined ? pelicula.archived : false),
+        viewed: (pelicula.viewed !== undefined ? pelicula.viewed : false),
+        modified: Date.now(),
+        caratula: pelicula.caratula !== undefined ? { url: pelicula.caratula.url, name: pelicula.caratula.name } : {}
+    };
+
+    firebase.database().ref('peliculas/' + user.uid + '/' + pelicula.id).update(nuevaPelicula)
+        .catch((error) => {
+            myAlert('Atención', error.message);
+            return false;
+        });
+
+    return true;
+}
+
+/**
+ * Elimina una pelicula y, si la tiene su carátula
  * 
- * @param {Object} serie Objeto de tipo serie
+ * @param {Object} pelicula Objeto de tipo pelicula
+ */
+function removePelicula(pelicula) {
+
+    // Si tiene carátula la borramos
+    if (pelicula.caratula !== undefined) {
+        return deleteCover(pelicula, 'peliculas');
+    } else {
+        return delPelicula(pelicula);
+    }
+}
+
+/**
+ * elima una pelicula
+ * 
+ * @param {Object} pelicula Objeto de tipo pelicula
+ */
+function delPelicula(pelicula) {
+    firebase.database().ref('peliculas/' + user.uid + '/' + pelicula.id).remove()
+        .catch((error) => {
+            myAlert('Atención', error.message);
+            return false;
+        });
+    return true;
+}
+
+
+
+/*** MÉTODOS STORAGE ***/
+/**
+ * Guarda la carátula de la elemento
+ * 
+ * @param {Object} elemento Objeto de tipo serie/pelicula
+ * @param {String} coleccion La colección donde se guarda la carátula: series o peliculas
  * @param {function} callback Función que se ejutará después de realizar la petición a FB si todo va bien
  * @returns 
  */
-function saveCover(serie, callback) {
+function saveCover(elemento, coleccion, callback) {
     return new Promise(function(resolve, reject) {
 
-        if (serie.file !== undefined) {
-            let storageRef = firebase.storage().ref('series/caratulas/' + user.uid + '/');
+        if (elemento.file !== undefined) {
+            let storageRef = firebase.storage().ref(coleccion + '/caratulas/' + user.uid + '/');
 
-            let extension = getExtensionFile(serie.file.name);
+            let extension = getExtensionFile(elemento.file.name);
 
             var metadata = {
-                'contentType': serie.file.type
+                'contentType': elemento.file.type
             };
 
-            storageRef.child(serie.id + '.' + extension).put(serie.file, metadata)
+            storageRef.child(elemento.id + '.' + extension).put(elemento.file, metadata)
                 .then(snapshot => {
                     // Let's get a download URL for the file.
                     snapshot.ref.getDownloadURL().then(url => {
                         caratula = {};
-                        caratula.name = serie.id + '.' + extension;
+                        caratula.name = elemento.id + '.' + extension;
                         caratula.url = url;
-                        serie.caratula = caratula;
-                        resolve(callback(serie));
+                        elemento.caratula = caratula;
+                        resolve(callback(elemento));
                     }).catch(error => {
                         myAlert('Atención', error.message);
                         reject(false);
@@ -342,20 +473,21 @@ function getExtensionFile(filename) {
 }
 
 /**
- * Borra una serie con carátula
+ * Borra una elemento con carátula
  * 
- * @param {Object} serie 
+ * @param {Object} elemento 
+ * @param {String} coleccion La colección donde está la carátula: series o peliculas
  * @returns 
  */
-function deleteCover(serie, deleteSerie = false) {
+function deleteCover(elemento, coleccion) {
     return new Promise(function(resolve, reject) {
-        firebase.storage().ref('series/caratulas/' + user.uid + '/' + serie.caratula.name).delete().then(() => {
+        firebase.storage().ref(coleccion + '/caratulas/' + user.uid + '/' + elemento.caratula.name).delete().then(() => {
             // File deleted successfully
-            resolve(delSerie(serie));
+            resolve(coleccion === 'series' ? delSerie(elemento) : delPelicula(elemento));
         }).catch((error) => {
             if (error.code === "storage/object-not-found") {
-                // La carátula no existe => podemos borrar la serie
-                resolve(delSerie(serie));
+                // La carátula no existe => podemos borrar la elemento
+                resolve(coleccion === 'series' ? delSerie(elemento) : delPelicula(elemento));
             } else {
                 myAlert('Atención', error.message);
                 reject(false);

@@ -77,15 +77,17 @@ input[type=search]::-webkit-search-cancel-button {
 }
 
 
-/*** FORMULARIO AÑADIR SERIES ***/
+/*** FORMULARIO AÑADIR SERIES/PELÍCULAS ***/
 
-select#serie-platform-color {
+select#serie-platform-color,
+select#pelicula-platform-color {
     width: 110px;
     background-color: #292929;
     font-weight: 900;
 }
 
-select#serie-platform-color option {
+select#serie-platform-color option,
+select#pelicula-platform-color option {
     font-weight: bold;
     background-color: #292929;
 }
@@ -105,13 +107,9 @@ label.big-checkbox {
 }
 
 
-/*** LISTA SERIES ***/
+/*** LISTA SERIES/PELÍCULAS ***/
 
-#lista-series {
-    padding-left: 0;
-}
-
-#lista-series>li {
+#lista-elementos>li {
     border-color: #856404;
 }
 
@@ -123,14 +121,16 @@ hr {
     margin-bottom: 0.8rem;
 }
 
-.serie-platform {
-    font-size: 1.6rem;
+.serie-platform,
+.pelicula-platform {
+    font-size: 1.4rem;
     padding: 0px 10px;
     border-radius: 5px;
     color: white;
     font-weight: bold;
     border: 1px solid #856718;
     background-color: #292929;
+    white-space: nowrap;
 }
 
 .serie-available-chapter>h5,
@@ -150,22 +150,26 @@ hr {
     border: 1px solid #856718;
 }
 
-.button-update-chapter{
+.button-update-chapter {
     font-size: 28px;
 }
 
 .plus-chapter,
 .minus-chapter,
 .edit-serie,
-.archive-serie {
+.archive-serie,
+.edit-pelicula,
+.archive-pelicula {
     cursor: pointer;
 }
 
-.serie-viewed {
+.serie-viewed,
+.pelicula-viewed {
     background-color: #fff3cda3;
 }
 
-.serie-caratula {
+.serie-caratula,
+.pelicula-caratula {
     max-width: 98px;
     max-height: 130px;
     border-radius: 5px;
