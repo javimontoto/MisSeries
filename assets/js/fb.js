@@ -42,7 +42,7 @@ function singInFB() {
 
                 localStorage.setItem('user', JSON.stringify(user));
                 showCloseButton(true);
-                getAllSeries();
+                getAllSeriesPeliculas();
             })
             .catch((error) => {
                 // Handle Errors here.
