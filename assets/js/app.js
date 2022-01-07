@@ -115,7 +115,7 @@ function getAllSeriesPeliculas() {
 function showModalSerie(e) {
     e.preventDefault;
 
-    const edit = !(e.target.id === 'add-element-modal-button'),
+    const edit = (e.target.classList.contains('edit-element')),
         modal = document.getElementById('add-serie-modal');
 
     if (edit) {
@@ -327,7 +327,7 @@ function showSeries() {
         archiveSerieButton.addEventListener('click', event => { archiveSerie(event); }, false);
 
         // Actualizamos el botón de editar la serie
-        const editSerieButton = clone.querySelector('.edit-serie');
+        const editSerieButton = clone.querySelector('.edit-element');
         editSerieButton.dataset.id = serie.id;
         editSerieButton.addEventListener("click", showModalSerie, false);
 
@@ -507,7 +507,7 @@ function showPeliculas() {
         archivePeliculaButton.addEventListener('click', event => { archivePelicula(event); }, false);
 
         // Actualizamos el botón de editar la pelicula
-        const editPeliculaButton = clone.querySelector('.edit-pelicula');
+        const editPeliculaButton = clone.querySelector('.edit-element');
         editPeliculaButton.dataset.id = pelicula.id;
         editPeliculaButton.addEventListener("click", showModalPelicula, false);
 
@@ -524,7 +524,7 @@ function showPeliculas() {
 function showModalPelicula(e) {
     e.preventDefault;
 
-    const edit = !(e.target.id === 'add-element-modal-button'),
+    const edit = (e.target.classList.contains('edit-element')),
         modal = document.getElementById('add-pelicula-modal');
 
     if (edit) {
