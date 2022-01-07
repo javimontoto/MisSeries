@@ -976,7 +976,6 @@ function changeCollection(e) {
     // Actualizamos la etiqueta de añadir serie/película
     updateLabelAddElementModalButton();
 
-
     // Recuperamos las plataformas según la colección
     fillAllPlatforms();
 
@@ -987,7 +986,7 @@ function changeCollection(e) {
  * Actualiza el nombre el botón según la colección (series/películas) seleccionada
  */
 function updateLabelAddElementModalButton() {
-    addElementModalButton.textContent = `Añadir ${tipoCollection.toLowerCase().slice(0, -1)}`;
+    addElementModalButton.querySelector('span').textContent = `Añadir ${tipoCollection.toLowerCase().slice(0, -1)}`;
 }
 
 /**

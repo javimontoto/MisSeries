@@ -46,7 +46,7 @@ body {
     justify-content: flex-end;
 }
 
-@media (min-width: 650px) {
+@media (min-width: 670px) {
     .navbar-expand-custom {
         flex-direction: row;
         flex-wrap: nowrap;
