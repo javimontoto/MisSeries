@@ -246,7 +246,7 @@
 
     <div class="wrapper">
         <div class="container-fluid">
-            <nav class="navbar navbar-expand-sm navbar-light">
+            <nav class="navbar navbar-expand-custom navbar-light">
                 <span class="navbar-brand">
                     <img src="assets/icons/favicon.png" alt="logo">
                     <h1 class="text-responsive">Mis SERIES</h1>
@@ -285,12 +285,15 @@
             <div id="filter-box" class="hidden">
                 <div class="card card-body">
                     <div class="d-flex mb-2">
-                        <select type="text" class="form-control" id="filter-tipo-collection">
+                        <button id="button-sel-series" class="btn btn-filter mr-1" title="SERIES">SERIES</button>
+                        <button id="button-sel-peliculas" class="btn btn-filter btn-filter-no-selected" title="PELÍCULAS">PELÍCULAS</button>
+
+                        <!-- <select type="text" class="form-control" id="filter-tipo-collection">
                             <option value="series">SERIES</option>
                             <option value="películas">PELÍCULAS</option>
-                        </select>
+                        </select> -->
                         <input id="buscador" type="search" class="form-control ml-1" placeholder="Buscar por título..." />
-                        <button id="limpiar-buscador" class="btn ml-1 btn-limpiar-buscador" title="Resetear filtro"><i class="far fa-trash-alt"></i></button>
+                        <button id="limpiar-buscador" class="btn ml-1 btn-filter" title="Resetear filtro"><i class="far fa-trash-alt"></i></button>
                     </div>
                     <div class="d-flex justify-content-between flex-wrap filter-content">
                         <div class="form-check mt-1 mr-2">

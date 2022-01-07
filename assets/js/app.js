@@ -54,7 +54,9 @@ const listaSeriesPeliculas = document.getElementById('lista-elementos'),
     filterAvailable = document.getElementById('filter-available'),
     filterPlatform = document.getElementById('filter-platform'),
     filterLimpiarBoton = document.getElementById('limpiar-buscador'),
-    filterCollection = document.getElementById('filter-tipo-collection');
+    // filterCollection = document.getElementById('filter-tipo-collection'),
+    filterCollectionSeries = document.getElementById('button-sel-series'),
+    filterCollectionPeliculas = document.getElementById('button-sel-peliculas');
 
 
 
@@ -80,7 +82,9 @@ filterAvailable.addEventListener('change', () => runFilter(false), false);
 buscador.addEventListener('keyup', () => runFilter(false), false);
 buscador.addEventListener('search', () => runFilter(true), false);
 filterLimpiarBoton.addEventListener('click', clearFilter, false);
-filterCollection.addEventListener('change', changeCollection, false);
+// filterCollection.addEventListener('change', changeCollection, false);
+filterCollectionSeries.addEventListener('click', changeCollection, false);
+filterCollectionPeliculas.addEventListener('click', changeCollection, false);
 
 
 
@@ -943,12 +947,35 @@ function fillSelectPlatformFilter() {
 /**
  * Realiza las operaciones desencadenadas al cambiar la coleción (series/películas)
  */
-function changeCollection() {
-    tipoCollection = filterCollection.options[filterCollection.selectedIndex].value;
+function changeCollection(e) {
+    tipoCollection = e.target.id === "button-sel-series" ? 'series' : 'películas';
+    // tipoCollection = filterCollection.options[filterCollection.selectedIndex].value;
+
+    if (tipoCollection === 'series'){
+        // Actualizamos el botón de la colección seleccionada
+        filterCollectionSeries.classList.remove('btn-filter-no-selected');
+        filterCollectionPeliculas.classList.add('btn-filter-no-selected');
+
+        // Cambiamos el título de la página
+        document.querySelector('.navbar-brand > h1').textContent = 'Mis SERIES'
+    
+        // Cambiamos el texto del filtro
+        filterAvailable.nextElementSibling.textContent = 'Caps disponibles';
+    } else {
+        // Actualizamos el botón de la colección seleccionada
+        filterCollectionSeries.classList.add('btn-filter-no-selected');
+        filterCollectionPeliculas.classList.remove('btn-filter-no-selected');
+
+        // Cambiamos el título de la página
+        document.querySelector('.navbar-brand > h1').textContent = 'Mis PELÍCULAS';
+    
+        // Cambiamos el texto del filtro
+        filterAvailable.nextElementSibling.textContent = 'Sin ver';
+    }
+
+    // Actualizamos la etiqueta de añadir serie/película
     updateLabelAddElementModalButton();
 
-    // Cambiamos el texto del filtro
-    filterAvailable.nextElementSibling.textContent = tipoCollection === 'series' ? 'Caps disponibles' : 'No vistas';
 
     // Recuperamos las plataformas según la colección
     fillAllPlatforms();
