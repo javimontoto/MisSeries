@@ -10,7 +10,8 @@ body {
 }
 
 .text-responsive {
-    font-size: calc(90% + 1vw + 1vh);
+    font-size: 35px;
+    /* font-size: calc(90% + 1vw + 1vh); */
 }
 
 .hidden {
@@ -22,6 +23,8 @@ body {
 
 .container-fluid {
     background-color: #ffdba4;
+    max-width: 800px;
+    min-width: 500px;
 }
 
 .navbar-brand>img {
@@ -79,7 +82,7 @@ body {
 }
 
 #filter-box .card-body {
-    padding: 1vw;
+    padding: 5px;
     border-color: #856404;
     background-color: #ffe9c8;
 }
@@ -143,6 +146,10 @@ label.big-checkbox {
 
 
 /*** LISTA SERIES/PELÍCULAS ***/
+
+#lista-elementos {
+    margin-top: 205px;
+}
 
 #lista-elementos>li {
     border-color: #856404;
