@@ -19,12 +19,21 @@ body {
 }
 
 
+
 /*** BARRA SUPERIOR ***/
 
 .container-fluid {
     background-color: #ffdba4;
     max-width: 800px;
     min-width: 500px;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1030;
 }
 
 .navbar-brand>img {
@@ -147,9 +156,9 @@ label.big-checkbox {
 
 /*** LISTA SERIES/PELÍCULAS ***/
 
-#lista-elementos {
+/* #lista-elementos {
     margin-top: 205px;
-}
+} */
 
 #lista-elementos>li {
     border-color: #856404;
