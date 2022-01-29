@@ -606,6 +606,9 @@ function addPelicula(e) {
         return;
     }
 
+    // Parseamos las etiquetas de género => convertimos ".", "|"... a ","
+    parseaPeliculaGenero();
+   
     if (e.target.dataset.id === undefined || e.target.dataset.id === 0) {
         // Creamos nueva pelicula
         update = false;
@@ -1106,4 +1109,21 @@ function recortaSinopsis(sinopsis) {
     } else {
         return sinopsis;
     }
+}
+
+/**
+ * Recorre el string de género y substituye algunos caracteres especiales por comas ','
+ */
+function parseaPeliculaGenero() {
+    const etiquetasGenero = peliculaGenero.value;
+    if (etiquetasGenero && etiquetasGenero.length > 0) {
+        const regBarra = /\s\|/g;    // Expresión para seleccionar ' |'
+        const regPunto = /\./g;     // Expresión para selecionar '.'
+
+        var generoSinBarras = etiquetasGenero.replace(regBarra, ',');
+        var generoSinPuntos = generoSinBarras.replace(regPunto, ',');
+
+        peliculaGenero.value = generoSinPuntos;
+    }
+
 }
