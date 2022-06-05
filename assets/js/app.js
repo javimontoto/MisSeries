@@ -802,10 +802,28 @@ function sortSeriesByTitle() {
             return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
         });
         misSeries = {};
-        seriesArray.forEach(tarea => misSeries[tarea.id] = tarea);
+        seriesArray.forEach(serie => misSeries[serie.id] = serie);
 
     } else
         lastPosition = 1;
+}
+
+/**
+ * Ordena las series según el campo posición
+ */
+ function sortSeriesByPosition() {
+    let seriesArray = Object.values(misSeries);
+    if (seriesArray.length > 1) {
+        seriesArray.sort((a, b) => {
+            return a.position - b.position;
+        });
+        lastPosition = seriesArray[seriesArray.length - 1].position;
+        misSeries = {};
+        seriesArray.forEach(serie => misSeries[serie.id] = serie);
+
+    } else
+        lastPosition = 1;
+
 }
 
 /**
@@ -818,28 +836,23 @@ function sortPeliculasByTitle() {
             return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
         });
         misPeliculas = {};
-        seriesArray.forEach(tarea => misPeliculas[tarea.id] = tarea);
+        seriesArray.forEach(pelicula => misPeliculas[pelicula.id] = pelicula);
 
     } else
         lastPosition = 1;
 }
 
 /**
- * Ordena las series según el campo posición
+ * Ordena las plataformas por orden albético
  */
-function sortSeriesByPosition() {
-    let seriesArray = Object.values(misSeries);
-    if (seriesArray.length > 1) {
-        seriesArray.sort((a, b) => {
-            return a.position - b.position;
+ function sortPlataformas() {
+    if (allPlatforms.length > 1) {
+        allPlatforms.sort((a, b) => {
+            return a.plataforma.toLowerCase().localeCompare(b.plataforma.toLowerCase());
         });
-        lastPosition = seriesArray[seriesArray.length - 1].position;
-        misSeries = {};
-        seriesArray.forEach(tarea => misSeries[tarea.id] = tarea);
+        allPlatforms = JSON.parse(JSON.stringify(allPlatforms));
 
-    } else
-        lastPosition = 1;
-
+    } 
 }
 
 /**
@@ -932,6 +945,9 @@ function fillSelectPlatformFilter() {
         opt.value = 0;
         opt.innerHTML = 'TODAS';
         filterPlatform.appendChild(opt);
+
+        // Ordenamos
+        sortPlataformas();
     }
 
     allPlatforms.forEach(p => {
